@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>Failed</title>
+        
+        <script>
+            
+            function updateTryAgainButton(_newUrl, _message)
+            {
+                var button = document.getElementById("try_again_button");
+                
+                button.onclick = function()
+                {
+                    window.location = _newUrl;
+                }
+                
+                if(_message)
+                {
+                    document.getElementById("error_message").innerHTML = "Error Loading Content: " + _message;
+                }
+                
+                
+            }
+            </script>
+    </head>
+    
+    <body>
+        <p align="center" id="error_message">Error Loading Content</p>
+        <div style="text-align:center;">
+            <button align="center" id="try_again_button">Try Again</button>
+        </div>
+    </body>
+    
+</html>

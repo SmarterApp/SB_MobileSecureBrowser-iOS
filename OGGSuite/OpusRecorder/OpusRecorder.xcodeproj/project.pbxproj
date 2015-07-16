@@ -1,0 +1,461 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		7480546B1766BB4F003CAAAF /* Documentation */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 748054701766BB4F003CAAAF /* Build configuration list for PBXAggregateTarget "Documentation" */;
+			buildPhases = (
+				748054711766BB69003CAAAF /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = Documentation;
+			productName = Documentation;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		74521D861730655C00F3E25A /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74521D851730655C00F3E25A /* Foundation.framework */; };
+		74521DA81730657F00F3E25A /* CSIDataQueue.c in Sources */ = {isa = PBXBuildFile; fileRef = 74521D951730657F00F3E25A /* CSIDataQueue.c */; };
+		74521DA91730657F00F3E25A /* CSIOpusDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 74521D981730657F00F3E25A /* CSIOpusDecoder.m */; };
+		74521DAA1730657F00F3E25A /* CSIOpusEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 74521D9A1730657F00F3E25A /* CSIOpusEncoder.m */; };
+		74521DAB1730657F00F3E25A /* AIROpusHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 74521D9C1730657F00F3E25A /* AIROpusHeader.m */; };
+		74521DAE1730657F00F3E25A /* opus_comment.c in Sources */ = {isa = PBXBuildFile; fileRef = 74521DA11730657F00F3E25A /* opus_comment.c */; };
+		74521DAF1730657F00F3E25A /* opus_header.c in Sources */ = {isa = PBXBuildFile; fileRef = 74521DA31730657F00F3E25A /* opus_header.c */; };
+		74521DB01730657F00F3E25A /* AIROpusWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 74521DA61730657F00F3E25A /* AIROpusWriter.m */; };
+		74521DBE173066BF00F3E25A /* libOGGZ.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74521DBD173065F600F3E25A /* libOGGZ.a */; };
+		74521DBF173066BF00F3E25A /* libOpusCodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74521DB6173065F300F3E25A /* libOpusCodec.a */; };
+		74521DD5173069F400F3E25A /* CSIDataQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 74521D961730657F00F3E25A /* CSIDataQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74521DD6173069F400F3E25A /* CSIOpusDecoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 74521D971730657F00F3E25A /* CSIOpusDecoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74521DD7173069F400F3E25A /* CSIOpusEncoder.h in Headers */ = {isa = PBXBuildFile; fileRef = 74521D991730657F00F3E25A /* CSIOpusEncoder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74521DD8173069F400F3E25A /* AIROpusHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 74521D9B1730657F00F3E25A /* AIROpusHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74521DDB173069F400F3E25A /* opus_comment.h in Headers */ = {isa = PBXBuildFile; fileRef = 74521DA21730657F00F3E25A /* opus_comment.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74521DDC173069F400F3E25A /* opus_header.h in Headers */ = {isa = PBXBuildFile; fileRef = 74521DA41730657F00F3E25A /* opus_header.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74521DDD173069F400F3E25A /* AIROpusWriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 74521DA51730657F00F3E25A /* AIROpusWriter.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74804F1D1738153300B2B700 /* AIROpusAudioRecorder.h in Headers */ = {isa = PBXBuildFile; fileRef = 74804F1B1738153300B2B700 /* AIROpusAudioRecorder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74804F1E1738153300B2B700 /* AIROpusAudioRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 74804F1C1738153300B2B700 /* AIROpusAudioRecorder.m */; };
+		74804F24173853B100B2B700 /* AIROpusAudioPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 74804F22173853B100B2B700 /* AIROpusAudioPlayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		74804F25173853B100B2B700 /* AIROpusAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 74804F23173853B100B2B700 /* AIROpusAudioPlayer.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		74521DB5173065F300F3E25A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 74521DB1173065F300F3E25A /* OpusCodec.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 74FE46321715BFB40048C6ED;
+			remoteInfo = OpusCodec;
+		};
+		74521DBC173065F600F3E25A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 74521DB7173065F600F3E25A /* OGGZ.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 74FE483B1715D0790048C6ED;
+			remoteInfo = OGGZ;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		74521D801730655C00F3E25A /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/${PRODUCT_NAME}";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		74521D821730655C00F3E25A /* libOpusRecorder.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOpusRecorder.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		74521D851730655C00F3E25A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		74521D891730655C00F3E25A /* OpusRecorder-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "OpusRecorder-Prefix.pch"; sourceTree = "<group>"; };
+		74521D951730657F00F3E25A /* CSIDataQueue.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CSIDataQueue.c; sourceTree = "<group>"; };
+		74521D961730657F00F3E25A /* CSIDataQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSIDataQueue.h; sourceTree = "<group>"; };
+		74521D971730657F00F3E25A /* CSIOpusDecoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSIOpusDecoder.h; sourceTree = "<group>"; };
+		74521D981730657F00F3E25A /* CSIOpusDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CSIOpusDecoder.m; sourceTree = "<group>"; };
+		74521D991730657F00F3E25A /* CSIOpusEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSIOpusEncoder.h; sourceTree = "<group>"; };
+		74521D9A1730657F00F3E25A /* CSIOpusEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CSIOpusEncoder.m; sourceTree = "<group>"; };
+		74521D9B1730657F00F3E25A /* AIROpusHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIROpusHeader.h; sourceTree = "<group>"; };
+		74521D9C1730657F00F3E25A /* AIROpusHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIROpusHeader.m; sourceTree = "<group>"; };
+		74521DA11730657F00F3E25A /* opus_comment.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opus_comment.c; sourceTree = "<group>"; };
+		74521DA21730657F00F3E25A /* opus_comment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opus_comment.h; sourceTree = "<group>"; };
+		74521DA31730657F00F3E25A /* opus_header.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = opus_header.c; sourceTree = "<group>"; };
+		74521DA41730657F00F3E25A /* opus_header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = opus_header.h; sourceTree = "<group>"; };
+		74521DA51730657F00F3E25A /* AIROpusWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIROpusWriter.h; sourceTree = "<group>"; };
+		74521DA61730657F00F3E25A /* AIROpusWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIROpusWriter.m; sourceTree = "<group>"; };
+		74521DB1173065F300F3E25A /* OpusCodec.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpusCodec.xcodeproj; path = ../OpusCodec/OpusCodec.xcodeproj; sourceTree = "<group>"; };
+		74521DB7173065F600F3E25A /* OGGZ.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OGGZ.xcodeproj; path = ../OGGZ/OGGZ.xcodeproj; sourceTree = "<group>"; };
+		74804F1B1738153300B2B700 /* AIROpusAudioRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIROpusAudioRecorder.h; sourceTree = "<group>"; };
+		74804F1C1738153300B2B700 /* AIROpusAudioRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIROpusAudioRecorder.m; sourceTree = "<group>"; };
+		74804F22173853B100B2B700 /* AIROpusAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIROpusAudioPlayer.h; sourceTree = "<group>"; };
+		74804F23173853B100B2B700 /* AIROpusAudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIROpusAudioPlayer.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		74521D7F1730655C00F3E25A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				74521DBE173066BF00F3E25A /* libOGGZ.a in Frameworks */,
+				74521DBF173066BF00F3E25A /* libOpusCodec.a in Frameworks */,
+				74521D861730655C00F3E25A /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		74521D791730655C00F3E25A = {
+			isa = PBXGroup;
+			children = (
+				74521DB7173065F600F3E25A /* OGGZ.xcodeproj */,
+				74521DB1173065F300F3E25A /* OpusCodec.xcodeproj */,
+				74521D871730655C00F3E25A /* OpusRecorder */,
+				74521D841730655C00F3E25A /* Frameworks */,
+				74521D831730655C00F3E25A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		74521D831730655C00F3E25A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				74521D821730655C00F3E25A /* libOpusRecorder.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		74521D841730655C00F3E25A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				74521D851730655C00F3E25A /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		74521D871730655C00F3E25A /* OpusRecorder */ = {
+			isa = PBXGroup;
+			children = (
+				74521D881730655C00F3E25A /* Supporting Files */,
+				74521D951730657F00F3E25A /* CSIDataQueue.c */,
+				74521D961730657F00F3E25A /* CSIDataQueue.h */,
+				74521D971730657F00F3E25A /* CSIOpusDecoder.h */,
+				74521D981730657F00F3E25A /* CSIOpusDecoder.m */,
+				74521D991730657F00F3E25A /* CSIOpusEncoder.h */,
+				74521D9A1730657F00F3E25A /* CSIOpusEncoder.m */,
+				74521D9B1730657F00F3E25A /* AIROpusHeader.h */,
+				74521D9C1730657F00F3E25A /* AIROpusHeader.m */,
+				74521DA11730657F00F3E25A /* opus_comment.c */,
+				74521DA21730657F00F3E25A /* opus_comment.h */,
+				74521DA31730657F00F3E25A /* opus_header.c */,
+				74521DA41730657F00F3E25A /* opus_header.h */,
+				74521DA51730657F00F3E25A /* AIROpusWriter.h */,
+				74521DA61730657F00F3E25A /* AIROpusWriter.m */,
+				74804F1B1738153300B2B700 /* AIROpusAudioRecorder.h */,
+				74804F1C1738153300B2B700 /* AIROpusAudioRecorder.m */,
+				74804F22173853B100B2B700 /* AIROpusAudioPlayer.h */,
+				74804F23173853B100B2B700 /* AIROpusAudioPlayer.m */,
+			);
+			path = OpusRecorder;
+			sourceTree = "<group>";
+		};
+		74521D881730655C00F3E25A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				74521D891730655C00F3E25A /* OpusRecorder-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		74521DB2173065F300F3E25A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				74521DB6173065F300F3E25A /* libOpusCodec.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		74521DB8173065F600F3E25A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				74521DBD173065F600F3E25A /* libOGGZ.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		74521DD1173069E200F3E25A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				74521DD5173069F400F3E25A /* CSIDataQueue.h in Headers */,
+				74521DD6173069F400F3E25A /* CSIOpusDecoder.h in Headers */,
+				74521DD7173069F400F3E25A /* CSIOpusEncoder.h in Headers */,
+				74521DD8173069F400F3E25A /* AIROpusHeader.h in Headers */,
+				74804F24173853B100B2B700 /* AIROpusAudioPlayer.h in Headers */,
+				74521DDB173069F400F3E25A /* opus_comment.h in Headers */,
+				74804F1D1738153300B2B700 /* AIROpusAudioRecorder.h in Headers */,
+				74521DDC173069F400F3E25A /* opus_header.h in Headers */,
+				74521DDD173069F400F3E25A /* AIROpusWriter.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		74521D811730655C00F3E25A /* OpusRecorder */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 74521D901730655C00F3E25A /* Build configuration list for PBXNativeTarget "OpusRecorder" */;
+			buildPhases = (
+				74521D7E1730655C00F3E25A /* Sources */,
+				74521D7F1730655C00F3E25A /* Frameworks */,
+				74521D801730655C00F3E25A /* CopyFiles */,
+				74521DD1173069E200F3E25A /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OpusRecorder;
+			productName = OpusRecorder;
+			productReference = 74521D821730655C00F3E25A /* libOpusRecorder.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		74521D7A1730655C00F3E25A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = AIR;
+			};
+			buildConfigurationList = 74521D7D1730655C00F3E25A /* Build configuration list for PBXProject "OpusRecorder" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 74521D791730655C00F3E25A;
+			productRefGroup = 74521D831730655C00F3E25A /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 74521DB8173065F600F3E25A /* Products */;
+					ProjectRef = 74521DB7173065F600F3E25A /* OGGZ.xcodeproj */;
+				},
+				{
+					ProductGroup = 74521DB2173065F300F3E25A /* Products */;
+					ProjectRef = 74521DB1173065F300F3E25A /* OpusCodec.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				74521D811730655C00F3E25A /* OpusRecorder */,
+				7480546B1766BB4F003CAAAF /* Documentation */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		74521DB6173065F300F3E25A /* libOpusCodec.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libOpusCodec.a;
+			remoteRef = 74521DB5173065F300F3E25A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		74521DBD173065F600F3E25A /* libOGGZ.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libOGGZ.a;
+			remoteRef = 74521DBC173065F600F3E25A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		748054711766BB69003CAAAF /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Build an Xcode documentation\n/Applications/appledoc \"$SOURCE_ROOT/$PROJECT_NAME\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		74521D7E1730655C00F3E25A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				74521DA81730657F00F3E25A /* CSIDataQueue.c in Sources */,
+				74521DA91730657F00F3E25A /* CSIOpusDecoder.m in Sources */,
+				74521DAA1730657F00F3E25A /* CSIOpusEncoder.m in Sources */,
+				74521DAB1730657F00F3E25A /* AIROpusHeader.m in Sources */,
+				74521DAE1730657F00F3E25A /* opus_comment.c in Sources */,
+				74521DAF1730657F00F3E25A /* opus_header.c in Sources */,
+				74521DB01730657F00F3E25A /* AIROpusWriter.m in Sources */,
+				74804F1E1738153300B2B700 /* AIROpusAudioRecorder.m in Sources */,
+				74804F25173853B100B2B700 /* AIROpusAudioPlayer.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		74521D8E1730655C00F3E25A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		74521D8F1730655C00F3E25A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		74521D911730655C00F3E25A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				DSTROOT = /tmp/OpusRecorder.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "OpusRecorder/OpusRecorder-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(BUILT_PRODUCTS_DIR)/usr/local/include",
+					"$(BUILT_PRODUCTS_DIR)/include",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = $TARGET_NAME/usr/local/include;
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "\"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OpusCodec/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OGGZ/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OGG/usr/local/include\" \"$(BUILT_PRODUCTS_DIR)/OGG/usr/local/include\" \"$(BUILT_PRODUCTS_DIR)/OGGZ/usr/local/include\" \"$(BUILT_PRODUCTS_DIR)/OpusCodec/usr/local/include\"";
+			};
+			name = Debug;
+		};
+		74521D921730655C00F3E25A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				DSTROOT = /tmp/OpusRecorder.dst;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "OpusRecorder/OpusRecorder-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include";
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = $TARGET_NAME/usr/local/include;
+				SKIP_INSTALL = YES;
+				USER_HEADER_SEARCH_PATHS = "\"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OpusCodec/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OGGZ/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OGG/usr/local/include\" \"$(BUILT_PRODUCTS_DIR)/OGG/usr/local/include\" \"$(BUILT_PRODUCTS_DIR)/OGGZ/usr/local/include\" \"$(BUILT_PRODUCTS_DIR)/OpusCodec/usr/local/include\"";
+			};
+			name = Release;
+		};
+		7480546C1766BB4F003CAAAF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		7480546D1766BB4F003CAAAF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		74521D7D1730655C00F3E25A /* Build configuration list for PBXProject "OpusRecorder" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				74521D8E1730655C00F3E25A /* Debug */,
+				74521D8F1730655C00F3E25A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		74521D901730655C00F3E25A /* Build configuration list for PBXNativeTarget "OpusRecorder" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				74521D911730655C00F3E25A /* Debug */,
+				74521D921730655C00F3E25A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		748054701766BB4F003CAAAF /* Build configuration list for PBXAggregateTarget "Documentation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7480546C1766BB4F003CAAAF /* Debug */,
+				7480546D1766BB4F003CAAAF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 74521D7A1730655C00F3E25A /* Project object */;
+}
