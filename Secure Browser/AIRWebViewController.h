@@ -21,7 +21,7 @@
 /** Main Application View Controller. Displays the web content and manages
  *  its interactions via javascript.
  */
-@interface AIRWebViewController : AIRBrowserBaseViewController <UIWebViewDelegate, WKNavigationDelegate>
+@interface AIRWebViewController : AIRBrowserBaseViewController <UIWebViewDelegate, WKNavigationDelegate, UIApplicationDelegate, WKScriptMessageHandler>
 
 - (id)initWithReachability:(Reachability*)reachability;
 

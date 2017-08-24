@@ -17,7 +17,7 @@
 #import "NSJSONSerialization+AIR.h"
 #import "UIColor+AIR.h"
 
-static NSString *const kDefaultUrl = @"http://browser.smarterbalanced.org/landing";
+static NSString *const kDefaultUrl = @"https://browser.smarterapp.org/landing/";
 
 @interface AIRDebugWebViewController () <UITextFieldDelegate>
 

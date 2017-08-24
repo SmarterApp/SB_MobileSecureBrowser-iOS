@@ -19,7 +19,7 @@
 #import "Reachability.h"
 #import "UIWebView+AIR.h"
 
-static NSString *const kUserAgentString = @"SmarterMobileSecureBrowser/1.0";
+static NSString *const kUserAgentString = @"SmarterAppMobileSecureBrowser/2.0";
 
 @interface AIRAppDelegate () <AIRSpashViewControllerDelegate>
 @end
@@ -87,6 +87,11 @@ static NSString *const kUserAgentString = @"SmarterMobileSecureBrowser/1.0";
     
     self.startTime = [NSDate date];
     
+    int cacheSizeMemory = 4*1024*1024; // 4MB
+    int cacheSizeDisk = 32*1024*1024; // 32MB
+    NSURLCache *sharedCache = [[[NSURLCache alloc] initWithMemoryCapacity:cacheSizeMemory diskCapacity:cacheSizeDisk diskPath:@"nsurlcache"] autorelease];
+    [NSURLCache setSharedURLCache:sharedCache];
+    
     return YES;
 }
 
@@ -121,6 +126,18 @@ static NSString *const kUserAgentString = @"SmarterMobileSecureBrowser/1.0";
 - (void)splashViewControllerDidComplete
 {
     [self.window.rootViewController dismissViewControllerAnimated:YES completion:NULL];
+}
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+    // [[NSURLCache sharedURLCache] removeAllCachedResponses];
+}
+
+// disable third party keyboard
+- (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(NSString *)extensionPointIdentifier {
+    if ([extensionPointIdentifier isEqualToString: UIApplicationKeyboardExtensionPointIdentifier]) {
+        return NO;
+    }
+    return YES;
 }
 
 @end

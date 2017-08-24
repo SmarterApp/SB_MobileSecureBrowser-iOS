@@ -40,6 +40,8 @@
 #include <oggz/oggz_constants.h>
 #include <oggz/oggz_off_t.h>
 
+#include "oggz/oggz_packet.h"
+
 #include "oggz_macros.h"
 #include "oggz_vector.h"
 #include "oggz_dlist.h"
@@ -53,7 +55,7 @@ typedef struct _OggzReader OggzReader;
 typedef struct _OggzWriter OggzWriter;
 
 
-typedef int (*OggzReadPacket) (OGGZ * oggz, ogg_packet * op, long serialno,
+typedef int (*OggzReadPacket) (OGGZ * oggz, oggz_packet * op, long serialno,
 			       void * user_data);
 typedef int (*OggzReadPage) (OGGZ * oggz, const ogg_page * og, long serialno,
 			     void * user_data);
@@ -121,7 +123,7 @@ struct _oggz_stream_t {
   ogg_int64_t last_granulepos;
   ogg_int64_t page_granulepos;
   void * calculate_data;
-  ogg_packet  * last_packet;
+  ogg_packet * last_packet;
 };
 
 struct _OggzReader {
@@ -140,7 +142,14 @@ struct _OggzReader {
   ogg_int64_t current_unit;
   ogg_int64_t current_granulepos;
 
+  /* Read positioning */
   long current_page_bytes;
+
+  /* Calculation of position */
+  oggz_off_t current_packet_begin_page_offset;
+  int current_packet_pages;
+  int current_packet_begin_segment_index;
+
 #if 0
   oggz_off_t offset_page_end; /* offset of end of current page */
 #endif

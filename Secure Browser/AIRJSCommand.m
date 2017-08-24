@@ -15,6 +15,7 @@
 
 #import "AIRJSCommand.h"
 #import "AIROpusAudioRecorder.h"
+#import "AIROpusAudioPlayer.h"
 #import "NSData+Base64MG.h"
 #import "NSJSONSerialization+AIR.h"
 #import "AIRProcesses.h"
@@ -55,12 +56,20 @@ NSString *const kTTSSetPitch                 = @"cmdSetPitch";
 NSString *const kTTSSetRate                  = @"cmdSetRate";
 NSString *const kTTSSetVolume                = @"cmdSetVolume";
 
+NSString *const kCheckMicAccessStatus        = @"cmdCheckMicAccessStatus";
+
+
 //Json and Dictionary Keys
 static NSString *const kIdentifierKey = @"identifier";
 static NSString *const kFilenameKey = @"filename";
 static NSString *const kBase64Key = @"base64";
 static NSString *const kAudioInfoKey = @"audioInfo";
 static NSString *const kFilesKey = @"files";
+static NSString *const kRecordingsKey = @"recordings";
+static NSString *const kRecordingNameKey = @"recordingName";
+
+// event names
+static NSString *const kGuidedAccessChangedEvent = @"event_guided_access_changed";
 
 //Multiple to convert a kilobyte value into bytes
 static const float kKilobyteConversionFactor = 0.000976562;
@@ -103,6 +112,38 @@ static const float kKilobyteConversionFactor = 0.000976562;
     return [NSString stringWithFormat:@"AIRMobile.ntvOnAudioFileDataRetrieved('%@')", jsonString];
 }
 
++ (NSString*)handleRetrieveAudioFile:(NSDictionary*)params
+{
+    NSString *identifier = nil;
+    NSDictionary *parameters = nil;
+    NSString *filename = nil;
+    
+    identifier = [params objectForKey:kIdentifierKey];
+    filename = [params objectForKey:kFilenameKey];
+    
+    NSString *path = [AIROpusAudioRecorder fileStoragePath];
+    NSURL *url = [NSURL fileURLWithPath:[path stringByAppendingPathComponent:filename]];
+    NSData *data = [[NSFileManager defaultManager] contentsAtPath:url.path];
+    
+    NSString *base64 = [data base64EncodedString];
+    
+    NSDictionary *dataDict = @{kBase64Key : base64 ? base64 : [NSNull null],
+                               kRecordingNameKey : filename ? filename : [NSNull null]};
+    
+    if(identifier)
+    {
+        parameters = @{kAudioInfoKey : dataDict ? dataDict : [NSNull null], kIdentifierKey : identifier};
+    }
+    else
+    {
+        parameters = @{kAudioInfoKey : dataDict ? dataDict : [NSNull null]};
+    }
+    
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    return [NSString stringWithFormat:@"SecureBrowser.recorder.onRetrieveAudioFile('%@')", jsonString];
+}
+
 + (NSString*)handleClearAudioFileCache:(NSString*)params
 {
     NSError *error = nil;
@@ -124,6 +165,32 @@ static const float kKilobyteConversionFactor = 0.000976562;
     }
     
     return [self handleRequestAudioFiles:params];
+}
+
++ (NSString*)handleRemoveAudioFiles:(NSString*)identifier
+{
+    NSError *error = nil;
+    NSArray *directoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[AIROpusAudioRecorder fileStoragePath] error:&error];
+    if (error == nil)
+    {
+        for (NSString *path in directoryContents)
+        {
+            NSString *fullPath = [[AIROpusAudioRecorder fileStoragePath] stringByAppendingPathComponent:path];
+            BOOL removeSuccess = [[NSFileManager defaultManager] removeItemAtPath:fullPath error:&error];
+            if (!removeSuccess) {
+                
+                NSLog(@"error %@", error);
+            }
+        }
+    } else
+    {
+        NSLog(@"Error no content: %@ %@", error, [AIROpusAudioRecorder fileStoragePath]);
+    }
+    
+    if (identifier)
+    {
+        return [self handleRetrieveAudioFiles:identifier];
+    }
 }
 
 + (NSString*)handleRequestAudioFiles:(NSString*)params
@@ -156,6 +223,30 @@ static const float kKilobyteConversionFactor = 0.000976562;
     return [NSString stringWithFormat:@"AIRMobile.ntvOnAudioFileListRetrieved('%@')", jsonString];
 }
 
++ (NSString*)handleRetrieveAudioFiles:(NSString*)identifier
+{
+    NSString *path = [AIROpusAudioRecorder fileStoragePath];
+    NSError *error = nil;
+    
+    NSArray *directoryContents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:path error:&error];
+    
+    NSDictionary *parameters = nil;
+    
+    if(identifier)
+    {
+        parameters = @{kRecordingsKey : directoryContents ? directoryContents : [NSNull null], kIdentifierKey : identifier};
+    }
+    else
+    {
+        parameters = @{kRecordingsKey : directoryContents ? directoryContents : [NSNull null]};
+    }
+    
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    return [NSString stringWithFormat:@"SecureBrowser.recorder.onRetrieveAudioFiles('%@')", jsonString];
+}
+
+
 + (NSString*)handleRequestProcessList:(NSString*)params
 {
     NSArray *process = [AIRProcesses currentProcesses];
@@ -179,6 +270,29 @@ static const float kKilobyteConversionFactor = 0.000976562;
     
     
     return [NSString stringWithFormat:@"AIRMobile.ntvOnRunningProcessesUpdated('%@')", [NSJSONSerialization JSONStringFromDictionary:JSONParams error:nil]];
+}
+
++ (NSString*)handleExamineProcessList:(NSString*)identifier blacklist:(NSArray*)blacklist
+{
+    NSArray *process = [AIRProcesses currentProcesses];
+    NSDictionary *JSONParams = nil;
+    
+    // find the intersection between running processes and blacklisted processes
+    NSMutableSet *runningProcessesSet = [NSMutableSet setWithArray: process];
+    NSSet *blacklistedProcessesSet = [NSSet setWithArray: blacklist];
+    [runningProcessesSet intersectSet: blacklistedProcessesSet];
+    NSArray *detectedProcesses = [runningProcessesSet allObjects];
+    
+    if(identifier)
+    {
+        JSONParams = @{@"blacklist" : detectedProcesses, kIdentifierKey : identifier};
+    }
+    else
+    {
+        JSONParams = @{@"blacklist" : detectedProcesses};
+    }
+    
+    return [NSString stringWithFormat:@"SecureBrowser.security.onExamineProcessList('%@')", [NSJSONSerialization JSONStringFromDictionary:JSONParams error:nil]];
 }
 
 + (NSString*)handleTextToSpeechCheck:(NSString*)params ttsEngine:(AIRTTSEngine*)ttsEngine
@@ -206,14 +320,56 @@ static const float kKilobyteConversionFactor = 0.000976562;
     return [NSString stringWithFormat:@"AIRMobile.ntvOnTextToSpeechEnabled('%@')", jsonString];
 }
 
++ (NSString*)handleTextToSpeechStatusCheck:(NSString*)identifier ttsEngine:(AIRTTSEngine*)ttsEngine ttsCommand:(NSString*)ttsCommand
+{
+    NSDictionary *parameters = nil;
+    
+    // report the correct state
+    NSString *state = [ttsEngine statusString];
+    if (ttsCommand != (id)[NSNull null] && ttsCommand.length > 0 ) {
+        if ([ttsCommand isEqualToString:@"pause"]) {
+            if ([state isEqualToString:@"Paused"]) {
+                state = @"pause";
+            } else {
+                state = @"error";
+            }
+        } else if ([ttsCommand isEqualToString:@"resume"]) {
+            if ([state isEqualToString:@"Playing"]) {
+                state = @"resume";
+            } else {
+                state = @"error";
+            }
+        } else if ([ttsCommand isEqualToString:@"stop"]) {
+            if ([state isEqualToString:@"Stopped"]) {
+                state = @"stop";
+            } else {
+                state = @"error";
+            }
+        }
+    }
+    
+    if(identifier)
+    {
+        parameters = @{@"enabled" : @(UIAccessibilityIsVoiceOverRunning()), @"state" : state, @"identifier" : identifier};
+    }
+    else
+    {
+        parameters = @{@"enabled" : @(UIAccessibilityIsVoiceOverRunning()), @"state" : state};
+    }
+    
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    return [NSString stringWithFormat:@"SecureBrowser.tts.onTTSStatus('%@')", jsonString];
+}
+
 + (NSString*)handleAudioProgress:(NSNumber*)bytes duration:(NSNumber*)duration
 {
-    NSDictionary *parameters = @{@"updateType": @"INPROGRESS",
+    NSDictionary *parameters = @{@"type": @"INPROGRESS",
                                  @"kilobytesRecorded" : @(bytes.integerValue * kKilobyteConversionFactor),
                                  @"secondsRecorded" : duration};
     
     NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
-    return [NSString stringWithFormat:@"AIRMobile.ntvOnRecorderUpdate('%@')", jsonString];
+    return [NSString stringWithFormat:@"SecureBrowser.recorder.onRecorderStatus('%@')", jsonString];
 }
 
 + (NSString*)handleSendAudioFile:(NSString*)filename quality:(NSString*)quality trackLength:(NSTimeInterval)trackLength
@@ -226,10 +382,10 @@ static const float kKilobyteConversionFactor = 0.000976562;
     NSString *base64 = [data base64EncodedString];
     
     NSDictionary *dataDict = @{kBase64Key : base64 ? base64 : [NSNull null],
-                               kFilenameKey : filename ? filename : [NSNull null],
+                               kRecordingNameKey : filename ? filename : [NSNull null],
                                @"qualityIndicator" : quality ? quality : @"unknown"};
     
-    NSDictionary *content = @{@"updateType" : @"END",
+    NSDictionary *content = @{@"type" : @"END",
                               @"kilobytesRecorded" : @(data.length * kKilobyteConversionFactor),
                               @"secondsRecorded" : @(trackLength),
                               @"error" : data.length > 0 ? [NSNull null] : @"Error saving file",
@@ -238,7 +394,7 @@ static const float kKilobyteConversionFactor = 0.000976562;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:content options:0 error:nil];
     NSString *cont = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    return [NSString stringWithFormat:@"AIRMobile.ntvOnRecorderUpdate('%@')", cont];
+    return [NSString stringWithFormat:@"SecureBrowser.recorder.onRecorderStatus('%@')", cont];
 }
 
 + (NSString*)handleGuidedAccessCheck:(NSString*)params
@@ -264,6 +420,17 @@ static const float kKilobyteConversionFactor = 0.000976562;
     NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
     
     return [NSString stringWithFormat:@"AIRMobile.ntvOnGuidedAccessEnabled('%@')", jsonString];
+}
+
++ (NSString*)updateGuidedAccessStatus
+{
+    NSDictionary *parameters = nil;
+    
+    parameters = @{@"event": kGuidedAccessChangedEvent, @"enabled" : @(UIAccessibilityIsGuidedAccessEnabled())};
+    
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    return [NSString stringWithFormat:@"SecureBrowser.events.onEventDispatched('%@')", jsonString];
 }
 
 + (NSString*)handleSetDefaultURL:(NSString*)params
@@ -322,18 +489,75 @@ static const float kKilobyteConversionFactor = 0.000976562;
     return nil;
 }
 
-+ (NSString*)handleInitializeRecorder:(NSString*)params recorder:(AIROpusAudioRecorder*)recorder
++ (NSString*)handleCheckMicAccessStatus:(NSString*)params
 {
     NSObject *object = [NSJSONSerialization JSONObject:params];
     NSString *identifier = nil;
     NSDictionary *parameters = nil;
-    
-    NSDictionary *capabilities = [self getRecordingCapabilities:recorder ? YES : NO];
+    NSString *status = @"undetermined";
     
     if([object isKindOfClass:[NSDictionary class]])
     {
         identifier = [((NSDictionary*)object) objectForKey:kIdentifierKey];
     }
+
+    NSString *osVer = [[UIDevice currentDevice] systemVersion];
+    
+    if([[AVAudioSession sharedInstance] respondsToSelector:@selector(requestRecordPermission:)])
+    {
+        [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
+            // NSLog(@"permission : %d", granted);
+            NSDictionary *parameters = nil;
+            if(identifier)
+            {
+                if (granted)
+                {
+                    parameters = @{@"status" : @"granted", kIdentifierKey : identifier};
+                }
+                else
+                {
+                    parameters = @{@"status" : @"denied", kIdentifierKey : identifier};
+                }
+            }
+            else
+            {
+                if (granted)
+                {
+                    parameters = @{@"status" : @"granted"};
+                }
+                else
+                {
+                    parameters = @{@"status" : @"denied"};
+                }
+            }
+            NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+            
+            // return [NSString stringWithFormat:@"AIRMobile.ntvOnMicAccessStatus('%@')", jsonString];
+        }];
+    }
+    else
+    {
+        if(identifier)
+        {
+            parameters = @{@"status" : status, kIdentifierKey : identifier};
+        }
+        else
+        {
+            parameters = @{@"status" : status};
+        }
+    }
+
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    return [NSString stringWithFormat:@"AIRMobile.ntvOnMicAccessStatus('%@')", jsonString];
+
+}
+
++ (NSString*)handleInitializeRecorder:(NSString*)identifier recorder:(AIROpusAudioRecorder*)recorder
+{
+    NSDictionary *parameters = nil;
+    
+    NSDictionary *capabilities = [self getRecordingCapabilities:recorder ? YES : NO];
     
     NSString *state = recorder ? @"READY" : @"ERROR";
     
@@ -348,7 +572,7 @@ static const float kKilobyteConversionFactor = 0.000976562;
     
     NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
     
-    return [NSString stringWithFormat:@"AIRMobile.ntvOnRecorderInitialized('%@')", jsonString];
+    return [NSString stringWithFormat:@"SecureBrowser.recorder.onInitialized('%@')", jsonString];
 }
 
 + (NSString*)handleBeginRecording:(NSString*)params recorder:(AIROpusAudioRecorder*)recorder
@@ -392,6 +616,42 @@ static const float kKilobyteConversionFactor = 0.000976562;
     return [self handleAudioProgress:progress duration:dur];
 }
 
++ (NSString*)handleGetRecorderStatus:(NSString*)identifier recorder:(AIROpusAudioRecorder*)recorder player:(AIROpusAudioPlayer*)player;
+{
+    NSString* status = @"";
+    NSDictionary* parameters;
+    
+    if (recorder)
+    {
+        if ([recorder isRecording]) {
+            status = @"ACTIVE";
+        } else if (player) {
+            if ([player isPaused]) {
+                status = @"PAUSED";
+            } else if ([player isPlaying]) {
+                status = @"PLAYING";
+            } else {
+                status = @"IDLE";
+            }
+        } else {
+            status = @"IDLE";
+        }
+    }
+    
+    if (identifier)
+    {
+        parameters = @{@"status" : status, @"identifier" : identifier };
+    }
+    else
+    {
+        parameters = @{@"status" : status};
+    }
+    
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    return [NSString stringWithFormat:@"SecureBrowser.recorder.onGetRecorderStatus('%@')", jsonString];
+}
+                                                                 
 + (int)durationLimit:(NSDictionary*)params
 {
     NSObject *obj = [params objectForKey:@"captureLimit"];
@@ -466,16 +726,26 @@ static const float kKilobyteConversionFactor = 0.000976562;
 {
     NSArray *sampleRates = @[@(48000), @(24000), @(16000), @(12000), @(8000)];
     
-    NSArray *devices = @[@{@"id": @(0),
+    NSArray *inputDevices = @[@{@"id": @(0),
                            @"description" : @"Microphone",
                            @"sampleSizes" : @[@(16)],
                            @"sampleRates" : sampleRates,
-                           @"channelCounts" : @[@(1)],
-                           @"formats" : @[@"opus"],
+                           @"channels" : @[@(1)],
+                           @"encodingFormats" : @[@"opus"],
+                           @"default": @YES
                            }];
+    NSArray *outputDevices = @[@{@"id": @(0),
+                                @"description" : @"Speaker",
+                                @"sampleSizes" : @[@(16)],
+                                @"sampleRates" : sampleRates,
+                                @"channels" : @[@(1)],
+                                @"encodingFormats" : @[@"opus"],
+                                @"default": @YES
+                                }];
     
     return  @{@"isAvailable" : @(available),
-              @"supportedInputDevices" : devices };
+              @"supportedInputDevices" : inputDevices,
+              @"supportedOutputDevices" : outputDevices};
 }
 
 +(NSString*)getIP {
@@ -496,7 +766,6 @@ static const float kKilobyteConversionFactor = 0.000976562;
                     address = [NSString stringWithUTF8String:inet_ntoa(((struct sockaddr_in *)temp_addr->ifa_addr)->sin_addr)];
                     
                 }
-                
             }
             
             temp_addr = temp_addr->ifa_next;

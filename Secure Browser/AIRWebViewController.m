@@ -30,8 +30,10 @@
 #import "NSString+UUID.h"
 #import "AIRJSCommand.h"
 #import "UIScreen+AIR.h"
+#import "API_Setting.h"
 #import "AIRAppDelegate.h"
 #import "UIDevice+OSBuildVersion.h"
+#include <CommonCrypto/CommonDigest.h>
 
 static const float kKilobyteConversionFactor = 0.000976562;
 static const float kAIRMobileAPIVersion = 3.0f;
@@ -40,8 +42,12 @@ static NSString *const kCustomURLIdentifier = @":##airMobile_msgsnd##";
 static NSString *const kIdentifier = @"identifier";
 static NSString *const kDefaultRegionKey = @"default_region_selection";
 
-static NSString *const kDefaultUrl = @"http://browser.smarterbalanced.org/landing";
+static NSString *const kDefaultUrl = @"https://browser.smarterapp.org/landing/";
 static NSString *const kIdentifierKey = @"identifier";
+static NSString *const kEnterBackgroundEvent = @"event_enter_background";
+static NSString *const kReturnFromBackgroundEvent = @"event_return_from_background";
+static NSString *const kNetworkConnectivityChangedEvent = @"event_network_connectivity_changed";
+static NSString *const kBrowserBrand = @"SmarterAppMobileSecureBrowser";
 
 @interface AIRWebViewController () <AVAudioRecorderDelegate, AIRTTSDelegate, UIAlertViewDelegate>
 
@@ -128,7 +134,7 @@ static NSString *const kIdentifierKey = @"identifier";
     [super viewDidLoad];
     
     //Uncomment to use a custom url
-    
+
     // disable sleep mode
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     
@@ -136,7 +142,35 @@ static NSString *const kIdentifierKey = @"identifier";
     if (self.useWkWebView) {
         self.webView.hidden = YES;
         // self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
-        self.wkWebView = [[WKWebView alloc] initWithFrame:self.webView.frame];
+        
+        // configure the webview to not playback not requiring user action
+        WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
+        
+        // load local JS wrapper code
+        NSString* filePath = [[NSBundle mainBundle] pathForResource:@"SecureBrowser.js" ofType:nil];
+        NSString *scriptSourceCode = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:nil];
+        WKUserScript *script = [[WKUserScript alloc] initWithSource:scriptSourceCode injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+        
+        WKUserContentController *userController = [[WKUserContentController alloc] init];
+        [userController addUserScript:script];
+        
+        // listen to messages coming from JS
+        [self registerJavascriptAPIs:userController];
+        
+        // Configure the WKWebViewConfiguration instance with the WKUserContentController
+        configuration.userContentController = userController;
+        
+        NSString *osVer = [[UIDevice currentDevice] systemVersion];
+        if ([osVer characterAtIndex:0] == '8') {
+            configuration.mediaPlaybackRequiresUserAction = NO;
+        } else {
+            configuration.requiresUserActionForMediaPlayback = NO;
+            configuration.allowsPictureInPictureMediaPlayback = NO;
+        }
+        configuration.allowsInlineMediaPlayback = YES;
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = YES;
+        self.wkWebView = [[WKWebView alloc] initWithFrame:self.webView.frame configuration: configuration];
+        
         [self.view addSubview:self.wkWebView];
         self.wkWebView.hidden = NO;
         self.wkWebView.navigationDelegate = self;
@@ -144,16 +178,16 @@ static NSString *const kIdentifierKey = @"identifier";
             NSString *userAgent = jsId;
             [self logValue:userAgent withMessage:@"User Agent"];
         }];
-        self.wkWebView.configuration.mediaPlaybackRequiresUserAction = NO;
-        self.wkWebView.configuration.preferences.javaScriptCanOpenWindowsAutomatically = YES;
         WKNavigation *wkNav = [self.wkWebView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.defaultURL]]];
+        [AIRJSCommand handleRemoveAudioFiles:nil];
         
     } else {
         self.wkWebView.hidden = YES;
         NSString *userAgent = [self.webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
         
         [self logValue:userAgent withMessage:@"User Agent"];
-        [self.webView setMediaPlaybackRequiresUserAction:NO];
+        self.webView.mediaPlaybackRequiresUserAction = NO;
+        self.webView.allowsInlineMediaPlayback = YES;
         [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:self.defaultURL]]];
     }
 }
@@ -242,6 +276,204 @@ static NSString *const kIdentifierKey = @"identifier";
         self.lastError = nil;
     }
 }
+
+#pragma mark -WKScriptMessageHandler
+// function to handle JS API calls
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+    if ([message.name isEqualToString:@"initialize"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            [self sendDeviceInfo];
+        }
+    } else if ([message.name isEqualToString:@"isEnvironmentSecure"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self checkEnvironmentSecure:identifier];
+        }
+    } else if ([message.name isEqualToString:@"examineProcessList"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            NSArray* blacklistedProcesses = messageBody[@"blacklist"];
+            [self findBlacklistedProcesses:identifier blacklist:blacklistedProcesses];
+        }
+    } else if ([message.name isEqualToString:@"setAltStartPage"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* newDefaultUrl = messageBody[@"url"];
+            [self handleSetAltStartPage:newDefaultUrl];
+        }
+    } else if ([message.name isEqualToString:@"restoreDefaultStartPage"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            [self handleRestoreDefaultStartPage];
+        }
+    } else if ([message.name isEqualToString:@"lockDown"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* enable = messageBody[@"enable"];
+            NSString* identifierSuccess = messageBody[@"identifierSuccess"];
+            NSString* identifierFailure = messageBody[@"identifierFailure"];
+            [self lockdownBrowser:enable idSuccess:identifierSuccess idFailure:identifierFailure];
+        }
+    } else if ([message.name isEqualToString:@"getVoices"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self getTTSVoices:identifier];
+        }
+    } else if ([message.name isEqualToString:@"ttsSpeak"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            [self handleTTSSpeak:messageBody];
+        }
+    } else if ([message.name isEqualToString:@"ttsStop"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleTTSStop:identifier];
+        }
+    } else if ([message.name isEqualToString:@"ttsPause"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleTTSPause:identifier];
+        }
+    } else if ([message.name isEqualToString:@"ttsResume"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleTTSResume:identifier];
+        }
+    } else if ([message.name isEqualToString:@"ttsGetStatus"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleTTSGetStatus:identifier];
+        }
+    } else if ([message.name isEqualToString:@"initializeRecorder"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleInitializeRecorder:identifier];
+        }
+    } else if ([message.name isEqualToString:@"getRecorderCapabilities"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleGetRecorderCapabilities:identifier];
+        }
+    } else if ([message.name isEqualToString:@"getRecorderStatus"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleGetRecorderStatus:identifier];
+        }
+    } else if ([message.name isEqualToString:@"startCapture"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* options = messageBody[@"options"];
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleStartCapture:options];
+        }
+    } else if ([message.name isEqualToString:@"stopCapture"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            [self handleStopCapture];
+        }
+    } else if ([message.name isEqualToString:@"retrieveAudioFiles"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleRetrieveAudioFiles:identifier];
+        }
+    } else if ([message.name isEqualToString:@"removeAudioFiles"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleRemoveAudioFiles:identifier];
+        }
+    } else if ([message.name isEqualToString:@"retrieveAudioFile"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            [self handleRetrieveAudioFile:messageBody];
+        }
+    } else if ([message.name isEqualToString:@"audioPlay"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            [self handlePlaybackAudio:messageBody];
+        }
+    } else if ([message.name isEqualToString:@"audioStop"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleStopAudioPlayback:identifier];
+        }
+    } else if ([message.name isEqualToString:@"audioPause"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handlePausePlayback:identifier];
+        }
+    } else if ([message.name isEqualToString:@"audioResume"]) {
+        id messageBody = message.body;
+        if ([messageBody isKindOfClass:[NSDictionary class]]) {
+            NSString* identifier = messageBody[@"identifier"];
+            [self handleResumePlayback:identifier];
+        }
+    }
+}
+
+#pragma mark - helpers
+// register JS API calls
+-(void)registerJavascriptAPIs:(WKUserContentController *)userContentController {
+    
+    [userContentController addScriptMessageHandler:self name:@"initialize"];
+    [userContentController addScriptMessageHandler:self name:@"isEnvironmentSecure"];
+    [userContentController addScriptMessageHandler:self name:@"examineProcessList"];
+    [userContentController addScriptMessageHandler:self name:@"lockDown"];
+    [userContentController addScriptMessageHandler:self name:@"setAltStartPage"];
+    [userContentController addScriptMessageHandler:self name:@"restoreDefaultStartPage"];
+    [userContentController addScriptMessageHandler:self name:@"getVoices"];
+    [userContentController addScriptMessageHandler:self name:@"ttsSpeak"];
+    [userContentController addScriptMessageHandler:self name:@"ttsStop"];
+    [userContentController addScriptMessageHandler:self name:@"ttsPause"];
+    [userContentController addScriptMessageHandler:self name:@"ttsResume"];
+    [userContentController addScriptMessageHandler:self name:@"ttsGetStatus"];
+    [userContentController addScriptMessageHandler:self name:@"initializeRecorder"];
+    [userContentController addScriptMessageHandler:self name:@"getRecorderCapabilities"];
+    [userContentController addScriptMessageHandler:self name:@"getRecorderStatus"];
+    [userContentController addScriptMessageHandler:self name:@"startCapture"];
+    [userContentController addScriptMessageHandler:self name:@"stopCapture"];
+    [userContentController addScriptMessageHandler:self name:@"retrieveAudioFiles"];
+    [userContentController addScriptMessageHandler:self name:@"removeAudioFiles"];
+    [userContentController addScriptMessageHandler:self name:@"retrieveAudioFile"];
+    [userContentController addScriptMessageHandler:self name:@"audioPlay"];
+    [userContentController addScriptMessageHandler:self name:@"audioStop"];
+    [userContentController addScriptMessageHandler:self name:@"audioPause"];
+    [userContentController addScriptMessageHandler:self name:@"audioResume"];
+    
+    NSString* script =[NSString stringWithContentsOfFile:[[NSBundle bundleForClass:[self class]] pathForResource:@"JSEventRegister" ofType:@"js" ] encoding:NSUTF8StringEncoding error:nil];
+    // Specify when and where and what user script needs to be injected into the web document
+    WKUserScript* userScript = [[WKUserScript alloc]initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:NO];
+    // Add the user script to the WKUserContentController instance
+    [userContentController addUserScript:userScript];
+}
+
+-(void)checkEnvironmentSecure:(NSString*)identifier {
+    
+    NSDictionary *parameters;
+    if (UIAccessibilityIsGuidedAccessEnabled()) {
+        parameters = @{@"secure" : @"true", @"messageKey": @"", @"identifier" : identifier };
+    } else {
+        parameters = @{@"secure" : @"false", @"messageKey": @"",@"identifier" : identifier };
+    }
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    [self sendJavascript:[NSString stringWithFormat:@"SecureBrowser.security.onIsEnvironmentSecure('%@')", jsonString] logMessage:nil];
+}
+
 
 #pragma mark - WKWebView Delegate
 
@@ -345,7 +577,8 @@ static NSString *const kIdentifierKey = @"identifier";
 /* The status of guided access has changed, notifies the webview via javascript. */
 - (void)guidedAccessStatusChanged:(NSNotification*)note
 {
-    [self handleGuidedAccessCheck:nil];
+    NSString *javascript = [AIRJSCommand updateGuidedAccessStatus];
+    [self sendJavascript:javascript logMessage:nil];
 }
 
 - (void)voiceOverStatusChanged:(NSNotification*)note
@@ -356,7 +589,12 @@ static NSString *const kIdentifierKey = @"identifier";
 /* The application is entering the backgrounded, notifies the webview via javascript. */
 - (void)willEnterBackground:(NSNotification*)note
 {
-    [self sendJavascript:@"AIRMobile.ntvApplicationEnterBackground()" logMessage:nil];
+    NSDictionary *parameters = @{@"event": kEnterBackgroundEvent};
+    
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    NSString *javascript = [NSString stringWithFormat:@"SecureBrowser.events.onEventDispatched('%@')", jsonString];
+    [self sendJavascript:javascript logMessage:nil];
 }
 
 /* The application is returning from being backgrounded, notifies the webview via javascript. */
@@ -366,20 +604,26 @@ static NSString *const kIdentifierKey = @"identifier";
     {
         [self.webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[self.lastError.userInfo objectForKey:@"NSErrorFailingURLStringKey"]]]];
     }
-    [self sendJavascript:@"AIRMobile.ntvApplicationReturnFromBackground()" logMessage:nil];
+    NSDictionary *parameters = @{@"event": kReturnFromBackgroundEvent};
     
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    NSString *javascript = [NSString stringWithFormat:@"SecureBrowser.events.onEventDispatched('%@')", jsonString];
+    [self sendJavascript:javascript logMessage:nil];
+
+    // report network connectivity status
     NetworkStatus netStatus = [self.reachability currentReachabilityStatus];
     NSDictionary *params = nil;
     if(netStatus == ReachableViaWiFi || netStatus == ReachableViaWWAN)
     {
-        params = @{@"status" : @"connected"};
+        params = @{@"event": kNetworkConnectivityChangedEvent, @"status" : @"connected"};
     }
     else
     {
-        params = @{@"status" : @"disconnected"};
+        params = @{@"event": kNetworkConnectivityChangedEvent, @"status" : @"disconnected"};
     }
     
-    [self sendJavascript:[NSString stringWithFormat:@"AIRMobile.ntvOnConnectivityChanged('%@')", [NSJSONSerialization JSONStringFromDictionary:params error:nil]] logMessage:nil];
+    [self sendJavascript:[NSString stringWithFormat:@"SecureBrowser.events.onEventDispatched('%@')", [NSJSONSerialization JSONStringFromDictionary:params error:nil]] logMessage:nil];
 }
 
 //Called by Reachability whenever status changes.
@@ -515,6 +759,9 @@ static NSString *const kIdentifierKey = @"identifier";
     }else if ([key isEqualToString:kTTSSetVolume.lowercaseString])
     {
         [self.ttsEngine ttsSetVolume:value];
+    }else if ([key isEqualToString:kCheckMicAccessStatus.lowercaseString])
+    {
+        [self handleCheckMicAccessStatus:value];
     }else
     {
         [self handleUnsupportedRequest:value];
@@ -561,6 +808,7 @@ static NSString *const kIdentifierKey = @"identifier";
                                  @"manufacturer" : @"Apple",
                                  @"operatingSystem" : os,
                                  @"operatingSystemVersion" : osVer,
+                                 @"brand": kBrowserBrand,
                                  @"apiVersion" : @(kAIRMobileAPIVersion),
                                  @"runningProcesses" : [AIRProcesses currentProcesses],
                                  @"textToSpeech" : @(UIAccessibilityIsVoiceOverRunning()),
@@ -580,7 +828,7 @@ static NSString *const kIdentifierKey = @"identifier";
     
     NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:deviceInfo error:nil];
     
-    NSString *js = [NSString stringWithFormat:@"AIRMobile.ntvOnDeviceReady('%@')", jsonString];
+    NSString *js = [NSString stringWithFormat:@"SecureBrowser.onDeviceReady('%@')", jsonString];
     
     [self sendJavascript:js logMessage:nil];
 }
@@ -698,6 +946,21 @@ static NSString *const kIdentifierKey = @"identifier";
     [self sendJavascript:javascript logMessage:nil];
 }
 
+- (void)handleSetAltStartPage:(NSString*)url
+{
+    if(url)
+    {
+        [[NSUserDefaults standardUserDefaults] setObject:url forKey:@"default_region_selection"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+}
+
+- (void)handleRestoreDefaultStartPage
+{
+    [[NSUserDefaults standardUserDefaults] setObject:@"" forKey:@"default_region_selection"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 - (void)handleGuidedAccessCheck:(NSString*)params
 {
     NSString *javascript = [AIRJSCommand handleGuidedAccessCheck:params];
@@ -742,10 +1005,116 @@ static NSString *const kIdentifierKey = @"identifier";
     }
 }
 
+- (void)lockdownBrowser:(NSString*)enable idSuccess:(NSString*)idSuccess idFailure:(NSString*)idFailure
+{
+    __block NSDictionary *parameters = nil;
+    
+
+    BOOL isActionEnable = ([enable isEqualToString:@"true"]) ? YES : NO;
+        
+    UIAccessibilityRequestGuidedAccessSession(isActionEnable, ^(BOOL didSucceed) {
+        
+        NSString *succeed = didSucceed ? @"true" : @"false";
+        NSString *enabled = (UIAccessibilityIsGuidedAccessEnabled()) ? @"true" : @"false";
+            
+        parameters = @{@"state" : succeed, @"enabled" : enabled };
+        NSMutableDictionary *mParameters = [parameters mutableCopy];
+        if (idSuccess) {
+            mParameters[@"identifierSuccess"] = idSuccess;
+        }
+        if (idFailure) {
+            mParameters[@"identifierFailure"] = idFailure;
+        }
+        NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:mParameters error:nil];
+            
+        [self sendJavascript:[NSString stringWithFormat:@"SecureBrowser.security.onLockDownBrowser('%@')", jsonString] logMessage:nil];
+    });
+}
+
+-(void)getTTSVoices:(NSString*)identifier {
+    
+    NSDictionary *parameters;
+    NSArray *ttsVoices = [self.ttsEngine availableLanguagePacks];
+
+    parameters = @{@"voices" : ttsVoices, @"identifier" : identifier };
+
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    [self sendJavascript:[NSString stringWithFormat:@"SecureBrowser.tts.onGetVoices('%@')", jsonString] logMessage:nil];
+}
+
+- (void)handleCheckMicAccessStatus:(NSString*)params
+{
+    NSObject *object = [NSJSONSerialization JSONObject:params];
+    NSString *identifier = nil;
+    NSDictionary *parameters = nil;
+    NSString *status = @"undetermined";
+    
+    if([object isKindOfClass:[NSDictionary class]])
+    {
+        identifier = [((NSDictionary*)object) objectForKey:kIdentifierKey];
+    }
+    
+    if([[AVAudioSession sharedInstance] respondsToSelector:@selector(requestRecordPermission:)])
+    {
+        [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted) {
+            // NSLog(@"permission : %d", granted);
+            NSDictionary *parameters = nil;
+            if(identifier)
+            {
+                if (granted)
+                {
+                    parameters = @{@"status" : @"granted", kIdentifierKey : identifier};
+                }
+                else
+                {
+                    parameters = @{@"status" : @"denied", kIdentifierKey : identifier};
+                }
+            }
+            else
+            {
+                if (granted)
+                {
+                    parameters = @{@"status" : @"granted"};
+                }
+                else
+                {
+                    parameters = @{@"status" : @"denied"};
+                }
+            }
+            NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+
+            [self sendJavascript:[NSString stringWithFormat:@"AIRMobile.ntvOnMicAccessStatus('%@')", jsonString] logMessage:nil];
+        }];
+    }
+    else
+    {
+        if(identifier)
+        {
+            parameters = @{@"status" : status, kIdentifierKey : identifier};
+        }
+        else
+        {
+            parameters = @{@"status" : status};
+        }
+        NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+        
+        [self sendJavascript:[NSString stringWithFormat:@"AIRMobile.ntvOnMicAccessStatus('%@')", jsonString] logMessage:nil];
+    }
+    
+}
+
 - (void)handleTextToSpeechCheck:(NSString*)params
 {
     NSString *javascript = [AIRJSCommand handleTextToSpeechCheck:params ttsEngine:self.ttsEngine];
     [self sendJavascript:javascript logMessage:nil];
+}
+
+- (void)handleTextToSpeechStatusCheck:(NSString*)identifier ttsCommand:(NSString*)ttsCommand
+{
+    NSString *javascript = [AIRJSCommand handleTextToSpeechStatusCheck:identifier ttsEngine:self.ttsEngine ttsCommand:ttsCommand];
+    [self sendJavascript:javascript logMessage:nil];
+    
 }
 
 - (void)handleTTSEngineRequest:(NSString*)params
@@ -771,16 +1140,58 @@ static NSString *const kIdentifierKey = @"identifier";
     [self handleTextToSpeechCheck:nil];
 }
 
+- (void)handleTTSSpeak:(NSDictionary*)params
+{
+    NSString *ttsOptions = nil;
+    NSString *identifier = nil;
+    NSString *text = nil;
+    NSObject *options = nil;
+    
+    if([params isKindOfClass:[NSDictionary class]])
+    {
+        identifier = [((NSDictionary*)params) objectForKey:@"identifier"];
+        text = [((NSDictionary*)params) objectForKey:@"text"];
+        ttsOptions = [((NSDictionary*)params) objectForKey:@"options"];
+        options = [NSJSONSerialization JSONObject:ttsOptions];
+    }
+    
+    [self.ttsEngine speakText:text options:((NSDictionary*)options)];
+    if(identifier && [self.ttsEngine audioPlayer])
+    {
+        objc_setAssociatedObject([self.ttsEngine audioPlayer], &kIdentifier, identifier, OBJC_ASSOCIATION_COPY);
+    }
+    
+    // [self handleTextToSpeechStatusCheck:identifier ttsCommand:@"speak"];
+}
+
 - (void)handleTTSPauseRequest:(NSString*)params
 {
     [self.ttsEngine pauseSpeech];
     [self handleTextToSpeechCheck:params];
 }
 
+- (void)handleTTSPause:(NSString*)identifier
+{
+    [self.ttsEngine pauseSpeech];
+    [self handleTextToSpeechStatusCheck:identifier ttsCommand:@"pause"];
+}
+
 - (void)handleTTSResumeRequest:(NSString*)params
 {
     [self.ttsEngine resumeSpeech];
     [self handleTextToSpeechCheck:params];
+}
+
+- (void)handleTTSResume:(NSString*)identifier
+{
+    [self.ttsEngine resumeSpeech];
+    [self handleTextToSpeechStatusCheck:identifier ttsCommand:@"resume"];
+}
+
+- (void)handleTTSGetStatus:(NSString*)identifier
+{
+    // [self.ttsEngine resumeSpeech];
+    [self handleTextToSpeechStatusCheck:identifier ttsCommand:@"status"];
 }
 
 - (void)handleInitializeRecorderRequest:(NSString*)params
@@ -806,10 +1217,68 @@ static NSString *const kIdentifierKey = @"identifier";
     [self sendJavascript:javascript logMessage:nil];
 }
 
+- (void)handleInitializeRecorder:(NSString*)identifier
+{
+    self.opusAudioRecorder.endCallbackBlock = nil;
+    [self.opusAudioRecorder stopRecording];
+    
+    if(!self.opusAudioRecorder)
+    {
+        self.opusAudioRecorder = [[AIROpusAudioRecorder alloc] initWithSampleRate:48000];
+    }
+    
+    __weak __typeof(self) weak_self = self;
+    
+    [self.opusAudioRecorder setStatusCallbackBlock:^(AIROpusAudioRecorder *recorder, long bytes, NSTimeInterval ellapsed){
+        [weak_self sendProgress:@(bytes) duration:@(ellapsed)];
+    }];
+    [self.opusAudioRecorder setEndCallbackBlock:^(AIROpusAudioRecorder *recorder, long bytes, NSTimeInterval ellapsed){
+        [weak_self sendFile];
+    }];
+    
+    NSString *javascript = [AIRJSCommand handleInitializeRecorder:identifier recorder:self.opusAudioRecorder];
+    [self sendJavascript:javascript logMessage:nil];
+}
+
+- (void)handleGetRecorderCapabilities:(NSString*)identifier
+{
+    NSDictionary *parameters = nil;
+    NSDictionary *capabilities = [AIRJSCommand getRecordingCapabilities:YES];
+    if(identifier)
+    {
+        parameters = @{@"capabilities" : capabilities, kIdentifierKey : identifier};
+    }
+    else
+    {
+        parameters = @{@"capabilities" : capabilities};
+    }
+    
+    NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+    
+    [self sendJavascript:[NSString stringWithFormat:@"SecureBrowser.recorder.onGetCapabilities('%@')", jsonString]logMessage:nil];
+}
+
 - (void)handleStartAudioCapture:(NSString*)params
 {
     NSString *javascript = [AIRJSCommand handleBeginRecording:params recorder:self.opusAudioRecorder];
     [self sendJavascript:javascript logMessage:nil];
+}
+
+- (void)handleStartCapture:(NSString*)options
+{
+    NSString *javascript = [AIRJSCommand handleBeginRecording:options recorder:self.opusAudioRecorder];
+    [self sendJavascript:javascript logMessage:nil];
+}
+
+- (void)handleGetRecorderStatus:(NSString*)identifier
+{
+    NSString *javascript = [AIRJSCommand handleGetRecorderStatus:identifier recorder:self.opusAudioRecorder player:self.opusAudioPlayer];
+    [self sendJavascript:javascript logMessage:nil];
+}
+
+- (void)handleStopCapture
+{
+    [self.opusAudioRecorder stopRecording];
 }
 
 - (void)handleEndAudioCapture:(NSString*)params
@@ -850,6 +1319,14 @@ static NSString *const kIdentifierKey = @"identifier";
         NSString *data = [audioInfo objectForKey:@"data"];
         NSString *filename = [audioInfo objectForKey:@"filename"];
         
+        if (data == (id)[NSNull null])
+        {
+            NSDictionary *parameters = @{@"playbackState": @"error"};
+            NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+            [self sendJavascript:[NSString stringWithFormat:@"AIRMobile.ntvOnPlaybackStateChanged('%@')", jsonString] logMessage:nil];
+            return;
+        }
+        
         url = [NSURL fileURLWithPath:[AIROpusAudioRecorder fileStoragePath]];
         url = [url URLByAppendingPathComponent:filename ? filename : @"temp.opus"];
         
@@ -875,36 +1352,81 @@ static NSString *const kIdentifierKey = @"identifier";
     [self.opusAudioPlayer startPlayback];
 }
 
+- (void)handlePlaybackAudio:(NSDictionary*)params
+{
+    NSURL *url = nil;
+
+    NSDictionary *dict = (NSDictionary*)params;
+        
+    NSDictionary *audioInfo = [dict objectForKey:@"audioInfo"];
+        
+    NSString *type = [audioInfo objectForKey:@"type"];
+    NSString *data = [audioInfo objectForKey:@"data"];
+    NSString *filename = [audioInfo objectForKey:@"filename"];
+        
+    if (data == (id)[NSNull null])
+    {
+        NSDictionary *parameters = @{@"state": @"error"};
+        NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
+        [self sendJavascript:[NSString stringWithFormat:@"SecureBrowser.recorder.onAudioPlaybackStatus('%@')", jsonString] logMessage:nil];
+        return;
+    }
+        
+    url = [NSURL fileURLWithPath:[AIROpusAudioRecorder fileStoragePath]];
+    url = [url URLByAppendingPathComponent:filename ? filename : @"temp.opus"];
+        
+    if([type isEqualToString:@"recordingdata"])
+    {
+        NSData *fileData = [NSData dataFromBase64String:data];
+        NSError *error = nil;
+        [fileData writeToURL:url options:NSDataWritingAtomic error:&error];
+            
+        if(error)
+        {
+            NSLog(@"Error! %@", error);
+        }
+    }
+    
+    self.opusAudioPlayer = [[AIROpusAudioPlayer alloc] initWithFileURL:url];
+    __weak __typeof(self) weak_self = self;
+    [self.opusAudioPlayer setStateChangeBlock:^(AIROpusAudioPlayer* player, AIROpusAudioPlayerStateChange stateChange){
+        [weak_self sendAudioPlaybackState:stateChange];
+    }];
+    
+    [self.opusAudioPlayer startPlayback];
+}
+
 - (void)sendAudioPlaybackState:(AIROpusAudioPlayerStateChange)state
 {
-    NSString *status = @"end";
+    NSString *status = @"PLAYBACK_STOPPED";
     
     switch (state) {
         case AIROpusAudioPlayerStateChangeEnd:
-            status = @"end";
+            status = @"PLAYBACK_STOPPED";
             break;
         case AIROpusAudioPlayerStateChangeError:
-            status = @"error";
+            status = @"ERROR";
             break;
         case AIROpusAudioPlayerStateChangePlaying:
-            status = @"playing";
+            status = @"PLAYBACK_START";
             break;
         case AIROpusAudioPlayerStateChangeResumed:
-            status = @"resumed";
+            status = @"PLAYBACK_RESUMED";
             break;
         case AIROpusAudioPlayerStateChangePaused:
-            status = @"paused";
+            status = @"PLAYBACK_PAUSED";
             break;
         case AIROpusAudioPlayerStateChangeStopped:
-            status = @"stopped";
+            status = @"PLAYBACK_STOPPED";
             break;
         default:
             break;
     }
     
-    NSDictionary *parameters = @{@"playbackState": status};
+    NSDictionary *parameters = @{@"type": status};
     NSString *jsonString = [NSJSONSerialization JSONStringFromDictionary:parameters error:nil];
-    [self sendJavascript:[NSString stringWithFormat:@"AIRMobile.ntvOnPlaybackStateChanged('%@')", jsonString] logMessage:nil];
+
+    [self sendJavascript:[NSString stringWithFormat:@"SecureBrowser.recorder.onAudioPlaybackStatus('%@')", jsonString] logMessage:nil];
 }
 
 - (void)handleStopAudioPlayback:(NSString*)params
@@ -926,12 +1448,7 @@ static NSString *const kIdentifierKey = @"identifier";
 {
     NSString *identifier = objc_getAssociatedObject(ttsEngine.audioPlayer, &kIdentifier);
     
-    NSDictionary *dictionary = nil;
-    
-    if(identifier)
-        dictionary = @{@"identifier": identifier};
-    
-    [self handleTextToSpeechCheck:[NSJSONSerialization JSONStringFromDictionary:dictionary error:nil]];
+    [self handleTextToSpeechStatusCheck:identifier ttsCommand:@"status"];
 }
 
 - (void)airTTSSynchronize:(AIRTTSEngine *)ttsEngine word:(NSString*)currentWord location:(NSUInteger)currentLocation length:(NSUInteger)currentLength
@@ -939,8 +1456,8 @@ static NSString *const kIdentifierKey = @"identifier";
     // handing TTS synchronize message over to Javascript layer
     NSString *currentLocationStr = [NSString stringWithFormat:@"%d", currentLocation];
     NSString *currentLengthStr = [NSString stringWithFormat:@"%d", currentLength];
-    NSDictionary *parameters = @{@"word" : currentWord, @"location" : currentLocationStr, @"length": currentLengthStr};
-    NSString *js = [NSString stringWithFormat:@"AIRMobile.ntvOnTTSSynchronized('%@')", [NSJSONSerialization JSONStringFromDictionary:parameters error:nil]];
+    NSDictionary *parameters = @{@"type": @"word", @"word" : currentWord, @"charindex" : currentLocationStr, @"length": currentLengthStr};
+    NSString *js = [NSString stringWithFormat:@"SecureBrowser.tts.onTTSSynchronized('%@')", [NSJSONSerialization JSONStringFromDictionary:parameters error:nil]];
     
     [self sendJavascript:js logMessage:nil];
     NSLog(@"send message to javascript layer");
@@ -951,6 +1468,12 @@ static NSString *const kIdentifierKey = @"identifier";
 {
     [self.ttsEngine stopSpeech];
     [self handleTextToSpeechCheck:params];
+}
+
+- (void)handleTTSStop:(NSString*)identifier
+{
+    [self.ttsEngine stopSpeech];
+    [self handleTextToSpeechStatusCheck:identifier ttsCommand:@"stop"];
 }
 
 - (void)handleOrientationChange:(NSString*)params
@@ -984,9 +1507,21 @@ static NSString *const kIdentifierKey = @"identifier";
     [self sendJavascript:javascript logMessage:nil];
 }
 
+- (void)findBlacklistedProcesses:(NSString*)identifier blacklist:(NSArray*)blacklist
+{
+    NSString *javascript = [AIRJSCommand handleExamineProcessList:identifier blacklist:blacklist];
+    [self sendJavascript:javascript logMessage:nil];
+}
+
 - (void)handleRequestAudioFiles:(NSString*)params
 {    
     NSString *javascript = [AIRJSCommand handleRequestAudioFiles:params];
+    [self sendJavascript:javascript logMessage:nil];
+}
+
+- (void)handleRetrieveAudioFiles:(NSString*)identifier
+{
+    NSString *javascript = [AIRJSCommand handleRetrieveAudioFiles:identifier];
     [self sendJavascript:javascript logMessage:nil];
 }
 
@@ -996,9 +1531,21 @@ static NSString *const kIdentifierKey = @"identifier";
     [self sendJavascript:javascript logMessage:nil];
 }
 
+- (void)handleRemoveAudioFiles:(NSString*)identifier
+{
+    NSString *javascript = [AIRJSCommand handleRemoveAudioFiles:identifier];
+    [self sendJavascript:javascript logMessage:nil];
+}
+
 - (void)handleRequestFile:(NSString*)params
 {
     NSString *javascript = [AIRJSCommand handleAudioFileRequest:params];
+    [self sendJavascript:javascript logMessage:nil];
+}
+
+- (void)handleRetrieveAudioFile:(NSDictionary*)params
+{
+    NSString *javascript = [AIRJSCommand handleRetrieveAudioFile:params];
     [self sendJavascript:javascript logMessage:nil];
 }
 

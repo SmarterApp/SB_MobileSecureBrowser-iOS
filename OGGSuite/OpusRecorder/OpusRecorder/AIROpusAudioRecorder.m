@@ -1,16 +1,9 @@
-//*******************************************************************************
-// Educational Online Test Delivery System
-// Copyright (c) 2015 American Institutes for Research
-//
-// Distributed under the AIR Open Source License, Version 1.0
-// See accompanying file AIR-License-1_0.txt or at
-// http://www.smarterapp.org/documents/American_Institutes_for_Research_Open_Source_Software_License.pdf
-//*******************************************************************************
 //
 //  AIROpusAudioRecorder.m
 //  OpusRecorder
 //
 //  Created by Kenny Roethel on 5/6/13.
+//  Copyright (c) 2013 AIR. All rights reserved.
 //
 
 #import "AIROpusAudioRecorder.h"
@@ -255,19 +248,20 @@ void AudioInputCallback(void * inUserData,
     self.opusWriter.sampleRate = _recordState.dataFormat.mSampleRate;
     [self.opusWriter prepare];
     
-    AudioSessionInitialize(NULL,
-                           NULL,
-                           nil,
-                           (__bridge  void *)(self)
-                           );
+    BOOL success = NO;
+    NSError *error = nil;
+    AVAudioSession *session = [AVAudioSession sharedInstance];
     
-    UInt32 sessionCategory = kAudioSessionCategory_PlayAndRecord;
-    AudioSessionSetProperty(kAudioSessionProperty_AudioCategory,
-                            sizeof(sessionCategory),
-                            &sessionCategory
-                            );
+   success = [session setCategory:AVAudioSessionCategoryRecord error:&error];
+    if (!success) {
+        NSLog(@"%@ Error setting category: %@",
+              NSStringFromSelector(_cmd), [error localizedDescription]);
+    }
     
-    AudioSessionSetActive(true);
+    success = [session setActive:YES error:&error];
+    if (!success) {
+        NSLog(@"%@", [error localizedDescription]);
+    }
     
     OSStatus status = AudioQueueNewInput(&_recordState.dataFormat,
                                          AudioInputCallback,
@@ -377,6 +371,14 @@ void AudioInputCallback(void * inUserData,
         {
             AudioQueueStop(_recordState.queue, true);
             AudioQueueDispose(_recordState.queue, true);
+            
+            NSError *deactivationError = nil;
+            AVAudioSession *session = [AVAudioSession sharedInstance];
+            [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+            BOOL success = [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+            if (!success) {
+                NSLog(@"%@", [deactivationError localizedDescription]);
+            }
         }
     }];
     
@@ -421,6 +423,11 @@ void AudioInputCallback(void * inUserData,
 {
     static const int kScaleFactor = 100000; //easier to read large numbers than really small decimals
     return (self.amplitudeJumpCount/(double)self.peakCount) * kScaleFactor;
+}
+
+- (BOOL)isRecording
+{
+    return _recordState.recording;
 }
 
 + (NSString*)fileStoragePath

@@ -45,7 +45,6 @@
 #define PRI_OGGZ_OFF_T "l"
 
 #else
-#include <oggz/config.h>
 #include <oggz/oggz_off_t_generated.h>
 #endif
 

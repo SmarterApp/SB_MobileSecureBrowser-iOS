@@ -237,7 +237,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0460;
-				ORGANIZATIONNAME = AIR;
+				ORGANIZATIONNAME = OSS;
 			};
 			buildConfigurationList = 74521D7D1730655C00F3E25A /* Build configuration list for PBXProject "OpusRecorder" */;
 			compatibilityVersion = "Xcode 3.2";

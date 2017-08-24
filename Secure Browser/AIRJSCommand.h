@@ -14,6 +14,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVAudioSession.h>
 
 /* Commands that can be issued by the web page */
 extern NSString *const kCheckGuidedAccessRequest;
@@ -47,7 +48,11 @@ extern NSString *const kTTSSetPitch;
 extern NSString *const kTTSSetRate;
 extern NSString *const kTTSSetVolume;
 
+extern NSString *const kCheckMicAccessStatus;
+
+
 @class AIROpusAudioRecorder;
+@class AIROpusAudioPlayer;
 @class AIRTTSEngine;
 
 /**
@@ -58,19 +63,28 @@ extern NSString *const kTTSSetVolume;
 @interface AIRJSCommand : NSObject
 
 + (NSString*)handleAudioFileRequest:(NSString*)params;
++ (NSString*)handleRetrieveAudioFile:(NSDictionary*)params;
 + (NSString*)handleClearAudioFileCache:(NSString*)params;
++ (NSString*)handleRemoveAudioFiles:(NSString*)identifier;
 + (NSString*)handleRequestAudioFiles:(NSString*)params;
++ (NSString*)handleRetrieveAudioFiles:(NSString*)identifier;
 + (NSString*)handleRequestProcessList:(NSString*)params;
++ (NSString*)handleExamineProcessList:(NSString*)identifier blacklist:(NSArray*)blacklist;
 + (NSString*)handleTextToSpeechCheck:(NSString*)params ttsEngine:(AIRTTSEngine*)ttsEngine;
++ (NSString*)handleTextToSpeechStatusCheck:(NSString*)identifier ttsEngine:(AIRTTSEngine*)ttsEngine ttsCommand:(NSString*)ttsCommand;
 + (NSString*)handleAudioProgress:(NSNumber*)bytes duration:(NSNumber*)duration;
 + (NSString*)handleSendAudioFile:(NSString*)filename quality:(NSString*)quality trackLength:(NSTimeInterval)trackLength;
 + (NSString*)handleGuidedAccessCheck:(NSString*)params;
++ (NSString*)updateGuidedAccessStatus;
 + (NSString*)handleSetDefaultURL:(NSString*)params;
 + (NSString*)handleInitializeRecorder:(NSString*)params recorder:(AIROpusAudioRecorder*)recorder;
 + (NSString*)handleUnsupportedRequest:(NSString*)params;
 + (NSString*)handleBeginRecording:(NSString*)params recorder:(AIROpusAudioRecorder*)recorder;
++ (NSString*)handleGetRecorderStatus:(NSString*)identifier recorder:(AIROpusAudioRecorder*)recorder player:(AIROpusAudioPlayer*)player;
 
 + (NSDictionary*)getRecordingCapabilities:(BOOL)available;
 + (NSString*)getIP;
+
++ (NSString*)handleCheckMicAccessStatus:(NSString*)params;
 
 @end

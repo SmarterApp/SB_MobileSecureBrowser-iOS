@@ -28,9 +28,20 @@
 //  Modified 6/2013 Kenny Roethel
 
 #import "AIRTTSEngine.h"
+#import "API_Setting.h"
+#import "vt_spa_violeta.h"
+#import "vt_eng_julie.h"
 #import "GTMNSString+HTML.h"
 #import "AVFoundation/AVFoundation.h"
 #import "NSJSONSerialization+AIR.h"
+
+static const int kSpeakerId = -1;
+static const int kPitch = 100;
+static const int kSpeed = 100;
+static const int kVolume = 100;
+static const int kTextType = -1;
+static const int kDictIdx = -1;
+static const int kPause = -1;
 
 static NSString *const kPlayingTTSStatus = @"playing";
 static NSString *const kPausedTTSStatus = @"paused";
@@ -40,7 +51,6 @@ static NSString *const kIdleTTSStatus = @"idle";
 
 @property (nonatomic, assign) BOOL isPlaying;
 @property (nonatomic, assign) BOOL isPaused;
-@property (nonatomic, assign) BOOL isNativeVoicePackUsed;
 @property (nonatomic, strong) AVAudioPlayer *audioPlayer;
 @property (nonatomic, strong) NSMutableArray *availableLanguagePacks;
 @property (nonatomic, strong) NSMutableArray *additionalTTSProperties;
@@ -61,7 +71,6 @@ static NSString *const kIdleTTSStatus = @"idle";
     {
         self.availableLanguagePacks = [NSMutableArray array];
         NSString *nsResourcePath = [[NSBundle mainBundle] resourcePath];
-        self.isNativeVoicePackUsed = false;
         
         NSString *osVer = [[UIDevice currentDevice] systemVersion];
         
@@ -81,12 +90,14 @@ static NSString *const kIdleTTSStatus = @"idle";
                 for (int i=0; i<speechVoices.count; i++) {
                     AVSpeechSynthesisVoice *speechVoice = [speechVoices objectAtIndex:i];
                     NSString *language = speechVoice.language;
+                    NSString *name = speechVoice.language;
+                    NSString *identifier = speechVoice.language;
+                    if (([osVer characterAtIndex:0] != '7') && ([osVer characterAtIndex:0] != '8')) {
+                        NSString *name = speechVoice.name;
+                        NSString *identifier = speechVoice.identifier;
+                    }
                     if (language) {
-                        [self.availableLanguagePacks addObject:@{@"language" : language, @"voice" : language}];
-                        if ([language isEqualToString:@"es-ES"]) {
-                            // store the Spanish voice pack
-                            [self.additionalTTSProperties replaceObjectAtIndex:0 withObject:speechVoice];
-                        }
+                        [self.availableLanguagePacks addObject:@{@"id": identifier, @"lang" : language, @"voice" : name}];
                     }
                 }
             }
@@ -98,6 +109,7 @@ static NSString *const kIdleTTSStatus = @"idle";
 
 - (void)dealloc
 {
+
 }
 
 -(NSDictionary*)ttsSettings
@@ -167,7 +179,12 @@ static NSString *const kIdleTTSStatus = @"idle";
 
 -(void)speakText:(NSString *)text options:(NSDictionary*)options
 {
-    NSString *language = options[@"language"];
+    // if there is paused speech, stop it first
+    if (self.isPaused == YES) {
+        [self stopSpeech];
+    }
+    
+    NSString *voiceId = options[@"id"];
     
     NSNumber *prefferedSpeed = [self numberFromDictionary:options key:@"rate"];
     NSNumber *prefferedVolume = [self numberFromDictionary:options key:@"volume"];
@@ -197,28 +214,45 @@ static NSString *const kIdleTTSStatus = @"idle";
     
     NSString *osVer = [[UIDevice currentDevice] systemVersion];
     
-    self.isNativeVoicePackUsed = YES;
-    
     AVSpeechUtterance *utterance = [AVSpeechUtterance
                                     speechUtteranceWithString:cleanString];
     
-    if ([language isEqualToString:@"es-ES"]) {
-        if ([self.additionalTTSProperties objectAtIndex:0]) {
-            utterance.voice = [self.additionalTTSProperties objectAtIndex:0];
-        }
+    if (([osVer characterAtIndex:0] != '7') && ([osVer characterAtIndex:0] != '8')) {
+        utterance.voice = [AVSpeechSynthesisVoice voiceWithIdentifier:voiceId];
+    } else {
+        utterance.voice = [AVSpeechSynthesisVoice voiceWithLanguage:voiceId];
     }
-    
-    // convert settings to the values that are accepted for the Neospeech engine
-    utterance.rate = (float)speed / 50;
+        
+    // convert settings to the values that are accepted for native TTS engine
+    if ([osVer characterAtIndex:0] == '7') {
+        utterance.rate = (float)speed / 50;
+    } else if ([osVer characterAtIndex:0] == '8') {
+        utterance.rate = (float)speed / 100;
+    } else {
+        utterance.rate = (float)(speed + 40) / 100;
+    }
     utterance.pitchMultiplier = (float)pitch / 20 * 1.5 + 0.5;
     utterance.volume = (float)volume / 20;
     
     if ([self.additionalTTSProperties objectAtIndex:1]) {
         [self.additionalTTSProperties replaceObjectAtIndex:1 withObject:[[AVSpeechSynthesizer alloc] init]];
     }
-    
+        
     AVSpeechSynthesizer *synth = [self.additionalTTSProperties objectAtIndex:1];
     if (synth) {
+        BOOL success = NO;
+        NSError *error = nil;
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+            
+        success = [session setCategory:AVAudioSessionCategoryPlayback error:&error];
+        if (!success) {
+            return;
+        }
+        success = [session setActive:YES error:&error];
+        if (!success) {
+            return;
+        }
+
         self.isPlaying = YES;
         self.isPaused = NO;
         synth.delegate = self;
@@ -278,38 +312,32 @@ static NSString *const kIdleTTSStatus = @"idle";
 
 -(void)stopSpeech
 {
-    if (!self.isNativeVoicePackUsed) {
-        self.isPlaying = NO;
-        self.isPaused = NO;
-        [self.audioPlayer stop];
-    }
-    else {
-        // call the native IOS API to stop TTS playback
-        AVSpeechSynthesizer *synth = [self.additionalTTSProperties objectAtIndex:1];
-        if (synth) {
-            BOOL result = [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
-            if (result) {
-                self.isPlaying = NO;
-                self.isPaused = NO;
-            }
+    // call the native IOS API to stop TTS playback
+    AVSpeechSynthesizer *synth = [self.additionalTTSProperties objectAtIndex:1];
+    if (synth && ![synth isEqual:[NSNull null]]) {
+        BOOL result = [synth stopSpeakingAtBoundary:AVSpeechBoundaryImmediate];
+        if (result) {
+            self.isPlaying = NO;
+            self.isPaused = NO;
+            AVAudioSession *session = [AVAudioSession sharedInstance];
+            [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+            BOOL success = [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+
         }
     }
 }
 
 - (void)pauseSpeech
 {
-    if (!self.isNativeVoicePackUsed) {
-        [self.audioPlayer pause];
-        self.isPaused = YES;
-    }
-    else {
-        // call the native IOS API to pause TTS playback
-        AVSpeechSynthesizer *synth = [self.additionalTTSProperties objectAtIndex:1];
-        if (synth) {
-            BOOL result = [synth pauseSpeakingAtBoundary:AVSpeechBoundaryImmediate];
-            if (result) {
-                self.isPaused = YES;
-            }
+    // call the native IOS API to pause TTS playback
+    AVSpeechSynthesizer *synth = [self.additionalTTSProperties objectAtIndex:1];
+    if (synth && ![synth isEqual:[NSNull null]]) {
+        BOOL result = [synth pauseSpeakingAtBoundary:AVSpeechBoundaryImmediate];
+        if (result) {
+            self.isPaused = YES;
+            AVAudioSession *session = [AVAudioSession sharedInstance];
+            [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+            BOOL success = [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
         }
     }
 }
@@ -318,27 +346,27 @@ static NSString *const kIdleTTSStatus = @"idle";
 {
     if(self.isPaused)
     {
-        if (!self.isNativeVoicePackUsed) {
-            self.isPaused = NO;
-        
-            [self.audioPlayer play];
-            NSTimeInterval position = self.audioPlayer.currentTime;
-            position = position - .5f >= 0 ? position - .5f : 0;
-            [self.audioPlayer pause];
-            [self.audioPlayer setCurrentTime:position];
-        
-            [self.audioPlayer play];
-        }
-        else {
-            // call the native IOS API to resume TTS playback
-            AVSpeechSynthesizer *synth = [self.additionalTTSProperties objectAtIndex:1];
-            if (synth) {
-                BOOL result = [synth continueSpeaking];
-                if (result) {
-                    self.isPaused = NO;
-                }
+        // call the native IOS API to resume TTS playback
+        AVSpeechSynthesizer *synth = [self.additionalTTSProperties objectAtIndex:1];
+        if (synth) {
+            BOOL success = NO;
+            NSError *error = nil;
+            AVAudioSession *session = [AVAudioSession sharedInstance];
+                
+            success = [session setCategory:AVAudioSessionCategoryPlayback error:&error];
+            if (!success) {
+                return;
+            }
+                
+            success = [session setActive:YES error:&error];
+            if (!success) {
+                return;
             }
 
+            BOOL result = [synth continueSpeaking];
+            if (result) {
+                self.isPaused = NO;
+            }
         }
     }
 }
@@ -347,10 +375,10 @@ static NSString *const kIdleTTSStatus = @"idle";
 {
     if(self.isPlaying)
     {
-        return self.isPaused ? @"paused" : @"playing";
+        return self.isPaused ? @"Paused" : @"Playing";
     }
     
-    return @"idle";
+    return @"Stopped";
 }
 
 #pragma mark - AVAudioPlayer Delegate
@@ -385,7 +413,7 @@ static NSString *const kIdleTTSStatus = @"idle";
     NSString *currentWord = [utterance.speechString substringWithRange:characterRange];
     NSUInteger currentLocation = characterRange.location;
     NSUInteger currentLength = characterRange.length;
-    NSLog(@"about to say %@ at position %d with length %d", currentWord, currentLocation, currentLength);
+    // NSLog(@"about to say %@ at position %d with length %d", currentWord, currentLocation, currentLength);
     [self.delegate airTTSSynchronize:self word:currentWord location:currentLocation length:currentLength];
     
 }
@@ -398,6 +426,10 @@ static NSString *const kIdleTTSStatus = @"idle";
     if([self.delegate respondsToSelector:@selector(airTTSDidFinishPlaying:successfully:)])
     {
         [self.delegate airTTSDidFinishPlaying:self successfully:TRUE];
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+        BOOL success = [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+        
     }
 }
 

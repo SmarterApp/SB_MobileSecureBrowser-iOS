@@ -26,6 +26,12 @@ NSString *const kProcessIDKey = @"ProcessID";
     int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0};
     size_t miblen = 4;
     
+    NSString *osVer = [[UIDevice currentDevice] systemVersion];
+    
+    if (([osVer characterAtIndex:0] != '7') && ([osVer characterAtIndex:0] != '8')) {
+        return nil;
+    }
+    
     size_t size;
     int st = sysctl(mib, miblen, NULL, &size, NULL, 0);
     

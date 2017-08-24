@@ -58,6 +58,7 @@
  */
 
 #include <sys/types.h>
+#include "config.h"
 
 typedef loff_t oggz_off_t;
 

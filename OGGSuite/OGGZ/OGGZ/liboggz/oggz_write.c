@@ -53,7 +53,7 @@
 
 #include "oggz_private.h"
 #include "oggz_vector.h"
-#undef DEBUG
+
 /* #define DEBUG */
 
 /* Define to 0 or 1 */

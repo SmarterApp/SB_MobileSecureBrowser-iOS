@@ -1,16 +1,9 @@
-//*******************************************************************************
-// Educational Online Test Delivery System
-// Copyright (c) 2015 American Institutes for Research
-//
-// Distributed under the AIR Open Source License, Version 1.0
-// See accompanying file AIR-License-1_0.txt or at
-// http://www.smarterapp.org/documents/American_Institutes_for_Research_Open_Source_Software_License.pdf
-//*******************************************************************************
 //
 //  AIROpusAudioPlayer.m
 //  OpusRecorder
 //
 //  Created by Kenny Roethel on 5/6/13.
+//  Copyright (c) 2013 AIR. All rights reserved.
 //
 
 #import "AIROpusAudioPlayer.h"
@@ -92,6 +85,14 @@ void AudioOutputCallback(void * inUserData,
         
         playState.playing = false;
         player.playState = playState;
+        
+        NSError *deactivationError = nil;
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+        BOOL success = [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+        if (!success) {
+            NSLog(@"%@", [deactivationError localizedDescription]);
+        }
     }
 }
 
@@ -125,6 +126,21 @@ void AudioOutputCallback(void * inUserData,
     
     if([self readFileIntoBuffer:YES])
     {
+        BOOL success = NO;
+        NSError *error = nil;
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        
+        success = [session setCategory:AVAudioSessionCategoryPlayback error:&error];
+        if (!success) {
+            NSLog(@"%@ Error setting category: %@",
+                  NSStringFromSelector(_cmd), [error localizedDescription]);
+        }
+        
+        success = [session setActive:YES error:&error];
+        if (!success) {
+            NSLog(@"%@", [error localizedDescription]);
+        }
+
         [NSThread sleepForTimeInterval:.01];
         
         OSStatus status = noErr;
@@ -155,7 +171,6 @@ void AudioOutputCallback(void * inUserData,
             [self stop];
             [self sendStateChangeBlock:AIROpusAudioPlayerStateChangeError];
         }
-
     }
 }
 
@@ -217,14 +232,24 @@ void AudioOutputCallback(void * inUserData,
 - (void)stop
 {
     _playState.playing = false;
+    _playState.paused = NO;
     AudioQueueStop(_playState.queue, true);
     AudioQueueDispose(_playState.queue, true);
     [self sendStateChangeBlock:AIROpusAudioPlayerStateChangeStopped];
+    
+    NSError *deactivationError = nil;
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryAmbient error:nil];
+    BOOL success = [session setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+    if (!success) {
+        NSLog(@"%@", [deactivationError localizedDescription]);
+    }
+
 }
 
 - (void)pause
 {
-    if(self.playState.playing)
+    if(self.playState.playing && _playState.paused == NO)
     {
         _playState.paused = YES;
         //AudioQueuePause(_playState.queue);

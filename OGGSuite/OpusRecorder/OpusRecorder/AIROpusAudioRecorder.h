@@ -1,19 +1,13 @@
-//*******************************************************************************
-// Educational Online Test Delivery System
-// Copyright (c) 2015 American Institutes for Research
-//
-// Distributed under the AIR Open Source License, Version 1.0
-// See accompanying file AIR-License-1_0.txt or at
-// http://www.smarterapp.org/documents/American_Institutes_for_Research_Open_Source_Software_License.pdf
-//*******************************************************************************
 //
 //  AIROpusAudioRecorder.h
 //  OpusRecorder
 //
 //  Created by Kenny Roethel on 5/6/13.
+//  Copyright (c) 2013 AIR. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
+#import <AVFoundation/AVAudioSession.h>
 
 typedef enum
 {
@@ -26,7 +20,7 @@ typedef enum
 typedef void(^AIROpusRecorderStatusBlock)(AIROpusAudioRecorder *recorder, long fileSize, NSTimeInterval duration);
 typedef void(^AIROpusRecorderFinishBlock)(AIROpusAudioRecorder *recorder, long fileSize, NSTimeInterval duration);
 
-@interface AIROpusAudioRecorder : NSObject
+@interface AIROpusAudioRecorder : NSObject <AVAudioSessionDelegate>
 
 @property (nonatomic, readonly) float sampleRate;
 @property (nonatomic, copy) NSString *filename;
@@ -47,6 +41,7 @@ typedef void(^AIROpusRecorderFinishBlock)(AIROpusAudioRecorder *recorder, long f
 - (void)stopRecording;
 - (void)setCallbackFrequency:(int)interval forType:(AIROpusCallbackType)type;
 - (void)setRecordingLimit:(int)duration bytes:(long)bytes;
+- (BOOL)isRecording;
 - (NSTimeInterval)trackLength;
 
 + (NSString*)fileStoragePath;
