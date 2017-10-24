@@ -35,7 +35,7 @@
 	![Alt text](images/SigningandProfileSetup.png)
 
   * Configure User Header Files Path:
-      1. Extract the iOSHeaderFiles.tar file and place under **/usr/local/include/**
+      1. Extract the iOSHeaderFiles.tar.gz file, copy directories (ogg, oggz, opus and OpusRecorder) inside the iOSHeaderFiles directory and place them under **/usr/local/include/**
       2. On the Xcode project panel explore the **secure Browser** project folder, and as well explore the **OpusRecorder.xcodeproj** project folder
       3. Select **Targets** -> **Secure Browser** to the right of the main project panel. Next, press the "Build Settings" tab on the top and scroll down to find a section **Search paths**. For subsections **Header Search Paths** and **User Header Search Paths** add "/usr/local/include" with recursive for both debug and release
       4. Select **OpusRecorder.xcodeproj**, then press Build settings. Scroll down to find **Header Search Paths** under Search paths section. For debug and release add headers files path with recursive.
