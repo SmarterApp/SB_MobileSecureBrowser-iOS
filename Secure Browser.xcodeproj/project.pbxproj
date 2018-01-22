@@ -533,8 +533,7 @@
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					7486E31D16554A9F006B6F2B = {
-						DevelopmentTeam = MVHMXN9BS4;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.iCloud = {
 								enabled = 1;
@@ -799,8 +798,8 @@
 				CODE_SIGN_ENTITLEMENTS = "Secure Browser/Secure Browser.entitlements";
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MVHMXN9BS4;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Secure Browser/Secure Browser-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
@@ -835,8 +834,8 @@
 				CODE_SIGN_ENTITLEMENTS = "Secure Browser/Secure Browser.entitlements";
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = MVHMXN9BS4;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Secure Browser/Secure Browser-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
