@@ -4,5 +4,7 @@
 <dict>
 	<key>com.apple.developer.edu-assessment-mode</key>
 	<true/>
+	<key>com.apple.developer.icloud-container-identifiers</key>
+	<array/>
 </dict>
 </plist>

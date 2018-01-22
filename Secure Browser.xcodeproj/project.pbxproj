@@ -21,30 +21,17 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		39467E1220163E2A00167CFB /* SecureBrowserImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 39467E10201612AD00167CFB /* SecureBrowserImages.xcassets */; };
 		5418B6C919F04BCC0005D14E /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5418B6C819F04BCC0005D14E /* WebKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		54491E201EDDE9F9008CC0BE /* SecureBrowser.js in Resources */ = {isa = PBXBuildFile; fileRef = 54491E1F1EDDE9F9008CC0BE /* SecureBrowser.js */; };
 		54491E211EDDEA0D008CC0BE /* SecureBrowser.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = 54491E1F1EDDE9F9008CC0BE /* SecureBrowser.js */; };
 		5453745519EF012600E4238B /* WKWebView+AIR.m in Sources */ = {isa = PBXBuildFile; fileRef = 5453745419EF012600E4238B /* WKWebView+AIR.m */; };
 		54C5738318CD30E40002CC25 /* UIWebView+AIR.m in Sources */ = {isa = PBXBuildFile; fileRef = 54C5738218CD30E40002CC25 /* UIWebView+AIR.m */; };
-		54DD8F3B1864D2050058C48E /* Icon-Small-50@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 54DD8F3A1864D2050058C48E /* Icon-Small-50@2x.png */; };
-		54DE8DF31C567B4300C06E16 /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = 54DE8DF11C567B4300C06E16 /* Icon-76.png */; };
-		54DE8DF41C567B4300C06E16 /* Icon-152.png in Resources */ = {isa = PBXBuildFile; fileRef = 54DE8DF21C567B4300C06E16 /* Icon-152.png */; };
 		7409D551165D09A20091C8F8 /* UIDevice+ProcessesAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 7409D550165D09A20091C8F8 /* UIDevice+ProcessesAdditions.m */; };
 		742F0483182D3876004E02F6 /* UIDevice+OSBuildVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 742F0482182D3876004E02F6 /* UIDevice+OSBuildVersion.m */; };
 		7431FFD517948244008BC0F7 /* libvt_eng_julie_armv77s.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7431FFCF17948244008BC0F7 /* libvt_eng_julie_armv77s.a */; };
 		7431FFD617948244008BC0F7 /* libvt_eng_julie_simulation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7431FFD017948244008BC0F7 /* libvt_eng_julie_simulation.a */; };
 		7431FFDA179488A2008BC0F7 /* verification.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7431FFD9179488A2008BC0F7 /* verification.txt */; };
-		744938B016CC2887004081D0 /* Default-Landscape.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938AC16CC2887004081D0 /* Default-Landscape.png */; };
-		744938B116CC2887004081D0 /* Default-Landscape@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938AD16CC2887004081D0 /* Default-Landscape@2x.png */; };
-		744938B216CC2887004081D0 /* Default-Portrait.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938AE16CC2887004081D0 /* Default-Portrait.png */; };
-		744938B316CC2887004081D0 /* Default-Portrait@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938AF16CC2887004081D0 /* Default-Portrait@2x.png */; };
-		744938BA16CC2919004081D0 /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938B416CC2919004081D0 /* Icon-72.png */; };
-		744938BB16CC2919004081D0 /* Icon-Small-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938B516CC2919004081D0 /* Icon-Small-50.png */; };
-		744938BC16CC2919004081D0 /* Icon-Small.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938B616CC2919004081D0 /* Icon-Small.png */; };
-		744938BD16CC2919004081D0 /* Icon-Small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938B716CC2919004081D0 /* Icon-Small@2x.png */; };
-		744938BE16CC2919004081D0 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938B816CC2919004081D0 /* Icon.png */; };
-		744938BF16CC2919004081D0 /* Icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938B916CC2919004081D0 /* Icon@2x.png */; };
-		744938C116CC2AD9004081D0 /* Icon-72@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 744938C016CC2AD9004081D0 /* Icon-72@2x.png */; };
 		744938C416CC30E0004081D0 /* AIRBrowserBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 744938C316CC30E0004081D0 /* AIRBrowserBaseViewController.m */; };
 		74521DD0173068E700F3E25A /* libOpusRecorder.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74521DCA1730688900F3E25A /* libOpusRecorder.a */; };
 		74521DE117306D9700F3E25A /* libOGG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74521DDE17306D9700F3E25A /* libOGG.a */; };
@@ -122,6 +109,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		39467E10201612AD00167CFB /* SecureBrowserImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = SecureBrowserImages.xcassets; path = "Secure Browser/SecureBrowserImages.xcassets"; sourceTree = SOURCE_ROOT; };
 		5418B6C819F04BCC0005D14E /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		541D2C6819F980DE006617DA /* libvt_eng_julie.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = libvt_eng_julie.h; sourceTree = "<group>"; };
 		541D2C6A19F980DE006617DA /* libvt_eng_julie.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = libvt_eng_julie.m; sourceTree = "<group>"; };
@@ -132,9 +120,6 @@
 		5453745419EF012600E4238B /* WKWebView+AIR.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+AIR.m"; sourceTree = "<group>"; };
 		54C5738118CD30E40002CC25 /* UIWebView+AIR.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIWebView+AIR.h"; sourceTree = "<group>"; };
 		54C5738218CD30E40002CC25 /* UIWebView+AIR.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIWebView+AIR.m"; sourceTree = "<group>"; };
-		54DD8F3A1864D2050058C48E /* Icon-Small-50@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-50@2x.png"; sourceTree = "<group>"; };
-		54DE8DF11C567B4300C06E16 /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
-		54DE8DF21C567B4300C06E16 /* Icon-152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-152.png"; sourceTree = "<group>"; };
 		7409D54F165D09A20091C8F8 /* UIDevice+ProcessesAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIDevice+ProcessesAdditions.h"; sourceTree = "<group>"; };
 		7409D550165D09A20091C8F8 /* UIDevice+ProcessesAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIDevice+ProcessesAdditions.m"; sourceTree = "<group>"; };
 		742F0481182D3876004E02F6 /* UIDevice+OSBuildVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIDevice+OSBuildVersion.h"; sourceTree = "<group>"; };
@@ -144,17 +129,6 @@
 		7431FFCF17948244008BC0F7 /* libvt_eng_julie_armv77s.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvt_eng_julie_armv77s.a; sourceTree = "<group>"; };
 		7431FFD017948244008BC0F7 /* libvt_eng_julie_simulation.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libvt_eng_julie_simulation.a; sourceTree = "<group>"; };
 		7431FFD9179488A2008BC0F7 /* verification.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = verification.txt; path = "Secure Browser/verification.txt"; sourceTree = "<group>"; };
-		744938AC16CC2887004081D0 /* Default-Landscape.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape.png"; sourceTree = "<group>"; };
-		744938AD16CC2887004081D0 /* Default-Landscape@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Landscape@2x.png"; sourceTree = "<group>"; };
-		744938AE16CC2887004081D0 /* Default-Portrait.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait.png"; sourceTree = "<group>"; };
-		744938AF16CC2887004081D0 /* Default-Portrait@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x.png"; sourceTree = "<group>"; };
-		744938B416CC2919004081D0 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-72.png"; sourceTree = "<group>"; };
-		744938B516CC2919004081D0 /* Icon-Small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-50.png"; sourceTree = "<group>"; };
-		744938B616CC2919004081D0 /* Icon-Small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small.png"; sourceTree = "<group>"; };
-		744938B716CC2919004081D0 /* Icon-Small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small@2x.png"; sourceTree = "<group>"; };
-		744938B816CC2919004081D0 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
-		744938B916CC2919004081D0 /* Icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon@2x.png"; sourceTree = "<group>"; };
-		744938C016CC2AD9004081D0 /* Icon-72@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-72@2x.png"; sourceTree = "<group>"; };
 		744938C216CC30E0004081D0 /* AIRBrowserBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AIRBrowserBaseViewController.h; sourceTree = "<group>"; };
 		744938C316CC30E0004081D0 /* AIRBrowserBaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AIRBrowserBaseViewController.m; sourceTree = "<group>"; };
 		74521DC51730688900F3E25A /* OpusRecorder.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = OpusRecorder.xcodeproj; path = OGGSuite/OpusRecorder/OpusRecorder.xcodeproj; sourceTree = "<group>"; };
@@ -413,6 +387,7 @@
 		7486E32816554AA0006B6F2B /* Secure Browser */ = {
 			isa = PBXGroup;
 			children = (
+				39467E10201612AD00167CFB /* SecureBrowserImages.xcassets */,
 				544A674D1CD79A0100D1492D /* Secure Browser.entitlements */,
 				7431FFCA17948244008BC0F7 /* NeoSpeech */,
 				74E23C191670F5D30034BA7B /* Extensions */,
@@ -429,20 +404,6 @@
 			isa = PBXGroup;
 			children = (
 				54491E1F1EDDE9F9008CC0BE /* SecureBrowser.js */,
-				54DE8DF11C567B4300C06E16 /* Icon-76.png */,
-				54DE8DF21C567B4300C06E16 /* Icon-152.png */,
-				54DD8F3A1864D2050058C48E /* Icon-Small-50@2x.png */,
-				744938B416CC2919004081D0 /* Icon-72.png */,
-				744938C016CC2AD9004081D0 /* Icon-72@2x.png */,
-				744938B516CC2919004081D0 /* Icon-Small-50.png */,
-				744938B616CC2919004081D0 /* Icon-Small.png */,
-				744938B716CC2919004081D0 /* Icon-Small@2x.png */,
-				744938B816CC2919004081D0 /* Icon.png */,
-				744938B916CC2919004081D0 /* Icon@2x.png */,
-				744938AC16CC2887004081D0 /* Default-Landscape.png */,
-				744938AD16CC2887004081D0 /* Default-Landscape@2x.png */,
-				744938AE16CC2887004081D0 /* Default-Portrait.png */,
-				744938AF16CC2887004081D0 /* Default-Portrait@2x.png */,
 				7497D8281677A89200CAD44E /* en.lproj */,
 				7486E32A16554AA0006B6F2B /* Secure Browser-Info.plist */,
 				7486E32B16554AA0006B6F2B /* InfoPlist.strings */,
@@ -572,7 +533,8 @@
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					7486E31D16554A9F006B6F2B = {
-						DevelopmentTeam = OSSTEAM;
+						DevelopmentTeam = MVHMXN9BS4;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.iCloud = {
 								enabled = 1;
@@ -627,22 +589,9 @@
 				74E23C2316712A0E0034BA7B /* AIRWebViewController.xib in Resources */,
 				7497D82D1677A89200CAD44E /* InfoPlist.strings in Resources */,
 				7497D82E1677A89200CAD44E /* load_failed.html in Resources */,
-				744938B016CC2887004081D0 /* Default-Landscape.png in Resources */,
-				744938B116CC2887004081D0 /* Default-Landscape@2x.png in Resources */,
-				744938B216CC2887004081D0 /* Default-Portrait.png in Resources */,
-				744938B316CC2887004081D0 /* Default-Portrait@2x.png in Resources */,
-				744938BA16CC2919004081D0 /* Icon-72.png in Resources */,
-				744938BB16CC2919004081D0 /* Icon-Small-50.png in Resources */,
 				54491E201EDDE9F9008CC0BE /* SecureBrowser.js in Resources */,
-				744938BC16CC2919004081D0 /* Icon-Small.png in Resources */,
-				744938BD16CC2919004081D0 /* Icon-Small@2x.png in Resources */,
-				744938BE16CC2919004081D0 /* Icon.png in Resources */,
-				744938BF16CC2919004081D0 /* Icon@2x.png in Resources */,
-				54DE8DF41C567B4300C06E16 /* Icon-152.png in Resources */,
-				744938C116CC2AD9004081D0 /* Icon-72@2x.png in Resources */,
-				54DE8DF31C567B4300C06E16 /* Icon-76.png in Resources */,
+				39467E1220163E2A00167CFB /* SecureBrowserImages.xcassets in Resources */,
 				7431FFDA179488A2008BC0F7 /* verification.txt in Resources */,
-				54DD8F3B1864D2050058C48E /* Icon-Small-50@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -845,12 +794,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = "Secure Browser/Secure Browser.entitlements";
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = MVHMXN9BS4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Secure Browser/Secure Browser-Prefix.pch";
-				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include";
+				HEADER_SEARCH_PATHS = (
+					"$(BUILT_PRODUCTS_DIR)/usr/local/include",
+					"/usr/local/include/**",
+				);
 				INFOPLIST_FILE = "Secure Browser/Secure Browser-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -864,7 +820,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/OpusRecorder/usr/local/include \"$(BUILD_ROOT)/../InstallationBuildProductsLocation/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OpusRecorder/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OGG/usr/local/include\"";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/OpusRecorder/usr/local/include \"$(BUILD_ROOT)/../InstallationBuildProductsLocation/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OpusRecorder/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OGG/usr/local/include\" /usr/local/include/**";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -873,12 +830,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = "Secure Browser/Secure Browser.entitlements";
 				CODE_SIGN_IDENTITY = "";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				CODE_SIGN_ENTITLEMENTS = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = MVHMXN9BS4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Secure Browser/Secure Browser-Prefix.pch";
-				HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include";
+				HEADER_SEARCH_PATHS = (
+					"$(BUILT_PRODUCTS_DIR)/usr/local/include",
+					"/usr/local/include/**",
+				);
 				INFOPLIST_FILE = "Secure Browser/Secure Browser-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -892,7 +856,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/OpusRecorder/usr/local/include \"$(BUILD_ROOT)/../InstallationBuildProductsLocation/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OpusRecorder/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OGG/usr/local/include\"";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/OpusRecorder/usr/local/include \"$(BUILD_ROOT)/../InstallationBuildProductsLocation/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OpusRecorder/usr/local/include\" \"$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/OGG/usr/local/include\" /usr/local/include/**";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
